@@ -624,13 +624,24 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
                       </>}
                       {l.status === "approved" && <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><Award className="w-3.5 h-3.5 mr-1" />Officially Approved</Badge>}
 
-                      {/* Export buttons */}
+                      {/* View / Export / Delete */}
+                      <Button size="sm" variant="outline" onClick={() => setPreviewLetter(l)}>
+                        <Eye className="w-3.5 h-3.5 mr-1" />Preview
+                      </Button>
                       <Button size="sm" variant="outline" onClick={() => handleExportPDF(l)}>
                         <Printer className="w-3.5 h-3.5 mr-1" />PDF
                       </Button>
                       <Button size="sm" variant="outline" onClick={() => handleExportWord(l)}>
                         <FileDown className="w-3.5 h-3.5 mr-1" />Word
                       </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleExportExcel(l)}>
+                        <Download className="w-3.5 h-3.5 mr-1" />Excel
+                      </Button>
+                      {canManage && (
+                        <Button size="sm" variant="destructive" onClick={() => deleteLetter(l.id)}>
+                          <Trash2 className="w-3.5 h-3.5 mr-1" />Delete
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -646,17 +657,23 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
               <CardHeader className="pb-2"><CardTitle className="text-sm">Change History</CardTitle></CardHeader>
               <CardContent className="p-0">
                 <Table>
-                  <TableHeader><TableRow><TableHead>Date</TableHead><TableHead>Action</TableHead><TableHead>Table</TableHead><TableHead>Details</TableHead></TableRow></TableHeader>
+                  <TableHeader><TableRow><TableHead>Date &amp; Time</TableHead><TableHead>Action</TableHead><TableHead>Module</TableHead><TableHead>Summary</TableHead><TableHead className="w-16"></TableHead></TableRow></TableHeader>
                   <TableBody>
-                    {auditLogs.map((log: any) => (
-                      <TableRow key={log.id}>
-                        <TableCell className="text-xs">{format(new Date(log.created_at), "MMM d, yyyy HH:mm")}</TableCell>
-                        <TableCell><Badge variant="outline" className="text-xs capitalize">{log.change_type}</Badge></TableCell>
-                        <TableCell className="text-xs">{log.table_name}</TableCell>
-                        <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">{log.new_data ? JSON.stringify(log.new_data).slice(0, 80) + "..." : "—"}</TableCell>
-                      </TableRow>
-                    ))}
-                    {auditLogs.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No audit records</TableCell></TableRow>}
+                    {auditLogs.map((log: any) => {
+                      const summary = log.new_data
+                        ? Object.entries(log.new_data).slice(0, 2).map(([k, v]) => `${k}: ${typeof v === "object" ? "…" : String(v).slice(0, 30)}`).join(" • ")
+                        : log.old_data ? "Record removed" : "—";
+                      return (
+                        <TableRow key={log.id} className="cursor-pointer hover:bg-muted/40" onClick={() => setSelectedAuditLog(log)}>
+                          <TableCell className="text-xs whitespace-nowrap">{format(new Date(log.created_at), "MMM d, yyyy HH:mm:ss")}</TableCell>
+                          <TableCell><Badge variant={log.change_type === "delete" ? "destructive" : "outline"} className="text-xs capitalize">{log.change_type}</Badge></TableCell>
+                          <TableCell className="text-xs capitalize">{log.table_name?.replace(/_/g, " ")}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground max-w-[260px] truncate">{summary}</TableCell>
+                          <TableCell><Eye className="w-3.5 h-3.5 text-muted-foreground" /></TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {auditLogs.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">No audit records</TableCell></TableRow>}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -664,6 +681,97 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Letter Preview Dialog (read-only) */}
+      <Dialog open={!!previewLetter} onOpenChange={(o) => !o && setPreviewLetter(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden p-0">
+          <DialogHeader className="p-4 border-b">
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="w-5 h-5 text-primary" />
+              Letter Preview — {previewLetter?.letter_type?.replace(/_/g, " ")}
+            </DialogTitle>
+          </DialogHeader>
+          {previewLetter && (
+            <>
+              <div className="overflow-auto" style={{ maxHeight: "70vh" }}>
+                <iframe
+                  title="Letter Preview"
+                  className="w-full"
+                  style={{ height: "70vh", border: "none", background: "#fff" }}
+                  srcDoc={generateExperienceLetterHTML(buildPdfData(previewLetter)).replace(
+                    /<div class="no-print"[\s\S]*?<\/div>/, ""
+                  )}
+                />
+              </div>
+              <div className="flex gap-2 p-3 border-t flex-wrap">
+                <Button size="sm" onClick={() => handleExportPDF(previewLetter)}>
+                  <Printer className="w-3.5 h-3.5 mr-1" />Download PDF
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExportWord(previewLetter)}>
+                  <FileDown className="w-3.5 h-3.5 mr-1" />Word
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleExportExcel(previewLetter)}>
+                  <Download className="w-3.5 h-3.5 mr-1" />Excel
+                </Button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Audit Log Detail Dialog */}
+      <Dialog open={!!selectedAuditLog} onOpenChange={(o) => !o && setSelectedAuditLog(null)}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Audit Log Detail
+            </DialogTitle>
+          </DialogHeader>
+          {selectedAuditLog && (
+            <div className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">Date &amp; Time</p>
+                  <p className="font-medium">{format(new Date(selectedAuditLog.created_at), "MMMM d, yyyy 'at' HH:mm:ss")}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Action</p>
+                  <Badge variant={selectedAuditLog.change_type === "delete" ? "destructive" : "outline"} className="capitalize">
+                    {selectedAuditLog.change_type}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Module</p>
+                  <p className="font-medium capitalize">{selectedAuditLog.table_name?.replace(/_/g, " ")}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Changed By</p>
+                  <p className="font-mono text-xs break-all">{selectedAuditLog.changed_by}</p>
+                </div>
+              </div>
+
+              {selectedAuditLog.old_data && (
+                <div className="border-t pt-3">
+                  <p className="text-xs font-semibold text-destructive mb-2">Previous Data</p>
+                  <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-3 max-h-60 overflow-auto">
+                    <pre className="text-xs whitespace-pre-wrap break-words font-mono">{JSON.stringify(selectedAuditLog.old_data, null, 2)}</pre>
+                  </div>
+                </div>
+              )}
+
+              {selectedAuditLog.new_data && (
+                <div className="border-t pt-3">
+                  <p className="text-xs font-semibold text-primary mb-2">New / Current Data</p>
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 max-h-60 overflow-auto">
+                    <pre className="text-xs whitespace-pre-wrap break-words font-mono">{JSON.stringify(selectedAuditLog.new_data, null, 2)}</pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
