@@ -86,7 +86,7 @@ export default function Index() {
       .in("audience", ["client", "both"])
       .order("created_at", { ascending: false })
       .limit(6)
-      .then(({ data }) => setTestimonials((data || []) as SiteContent[]));
+      .then(({ data }) => setTestimonials((data || []) as unknown as SiteContent[]));
   }, []);
 
   return (

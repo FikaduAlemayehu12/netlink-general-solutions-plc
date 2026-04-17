@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 interface MilestoneWithProject {
   id: string;
   target_percentage: number;
-  target_date: string;
+  target_date: string | null;
   status: string;
   group_id: string;
   project_name: string;
@@ -114,7 +114,7 @@ export default function OverdueMilestonesWidget() {
       </CardHeader>
       <CardContent className="space-y-2">
         {items.map((m) => {
-          const isOverdue = new Date(m.target_date) < new Date() && m.status !== "failed";
+          const isOverdue = m.target_date ? new Date(m.target_date) < new Date() && m.status !== "failed" : false;
           return (
             <Link key={m.id} to="/staff/projects" className="block">
               <div className={`p-3 rounded-lg transition-colors hover:bg-muted/80 ${isOverdue ? "bg-destructive/5 border border-destructive/20" : "bg-amber-50 dark:bg-amber-900/10 border border-amber-200/30"}`}>
@@ -129,7 +129,7 @@ export default function OverdueMilestonesWidget() {
                 </div>
                 <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1"><Target className="w-3 h-3" />{m.target_percentage}% target</span>
-                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Due {format(new Date(m.target_date), "MMM d")}</span>
+                  {m.target_date && <span className="flex items-center gap-1"><Clock className="w-3 h-3" />Due {format(new Date(m.target_date), "MMM d")}</span>}
                 </div>
               </div>
             </Link>

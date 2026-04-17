@@ -204,6 +204,66 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          attachment_urls: string[] | null
+          content: string | null
+          created_at: string
+          edited: boolean | null
+          id: string
+          read: boolean | null
+          receiver_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          edited?: boolean | null
+          id?: string
+          read?: boolean | null
+          receiver_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          edited?: boolean | null
+          id?: string
+          read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dm_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       employee_audit_log: {
         Row: {
           change_type: string
@@ -671,6 +731,7 @@ export type Database = {
           emoji: string
           id: string
           message_id: string
+          reaction: string | null
           user_id: string
         }
         Insert: {
@@ -678,6 +739,7 @@ export type Database = {
           emoji: string
           id?: string
           message_id: string
+          reaction?: string | null
           user_id: string
         }
         Update: {
@@ -685,6 +747,7 @@ export type Database = {
           emoji?: string
           id?: string
           message_id?: string
+          reaction?: string | null
           user_id?: string
         }
         Relationships: [
@@ -909,8 +972,10 @@ export type Database = {
           period_type: string
           record_count: number | null
           staff_id: string
+          status: string | null
           total_actual: number | null
           total_planned: number | null
+          total_plans: number | null
           updated_at: string
         }
         Insert: {
@@ -922,8 +987,10 @@ export type Database = {
           period_type: string
           record_count?: number | null
           staff_id: string
+          status?: string | null
           total_actual?: number | null
           total_planned?: number | null
+          total_plans?: number | null
           updated_at?: string
         }
         Update: {
@@ -935,8 +1002,10 @@ export type Database = {
           period_type?: string
           record_count?: number | null
           staff_id?: string
+          status?: string | null
           total_actual?: number | null
           total_planned?: number | null
+          total_plans?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -972,6 +1041,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_performance_records: {
+        Row: {
+          achievement_pct: number | null
+          actual_value: number
+          approved_at: string | null
+          approved_by: string | null
+          ceo_adjusted_grade: number | null
+          ceo_notes: string | null
+          created_at: string
+          flagged: boolean | null
+          grade: number
+          id: string
+          period_key: string
+          plan_id: string | null
+          plan_type: string
+          planned_value: number
+          staff_id: string
+          status: string
+        }
+        Insert: {
+          achievement_pct?: number | null
+          actual_value?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          ceo_adjusted_grade?: number | null
+          ceo_notes?: string | null
+          created_at?: string
+          flagged?: boolean | null
+          grade?: number
+          id?: string
+          period_key: string
+          plan_id?: string | null
+          plan_type: string
+          planned_value?: number
+          staff_id: string
+          status?: string
+        }
+        Update: {
+          achievement_pct?: number | null
+          actual_value?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          ceo_adjusted_grade?: number | null
+          ceo_notes?: string | null
+          created_at?: string
+          flagged?: boolean | null
+          grade?: number
+          id?: string
+          period_key?: string
+          plan_id?: string | null
+          plan_type?: string
+          planned_value?: number
+          staff_id?: string
+          status?: string
+        }
+        Relationships: []
       }
       plan_reactions: {
         Row: {
@@ -1092,43 +1218,126 @@ export type Database = {
         }
         Relationships: []
       }
+      project_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       project_groups: {
         Row: {
+          completed_at: string | null
           created_at: string
           created_by: string
           description: string | null
+          end_date: string | null
+          final_attachment_urls: string[] | null
           id: string
           member_ids: string[] | null
           name: string
+          start_date: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
           created_by: string
           description?: string | null
+          end_date?: string | null
+          final_attachment_urls?: string[] | null
           id?: string
           member_ids?: string[] | null
           name: string
+          start_date?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
+          end_date?: string | null
+          final_attachment_urls?: string[] | null
           id?: string
           member_ids?: string[] | null
           name?: string
+          start_date?: string | null
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      project_milestones: {
+        Row: {
+          action_items: string | null
+          actual_date: string | null
+          created_at: string
+          group_id: string
+          id: string
+          notes: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          status: string
+          target_date: string | null
+          target_percentage: number
+          title: string
+        }
+        Insert: {
+          action_items?: string | null
+          actual_date?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          notes?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          target_date?: string | null
+          target_percentage?: number
+          title: string
+        }
+        Update: {
+          action_items?: string | null
+          actual_date?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          notes?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          status?: string
+          target_date?: string | null
+          target_percentage?: number
+          title?: string
         }
         Relationships: []
       }
       project_tasks: {
         Row: {
           assigned_to: string | null
+          attachments: string[] | null
           created_at: string
+          created_by: string | null
           description: string | null
           due_date: string | null
           group_id: string
@@ -1140,7 +1349,9 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          attachments?: string[] | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           due_date?: string | null
           group_id: string
@@ -1152,7 +1363,9 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          attachments?: string[] | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           due_date?: string | null
           group_id?: string
@@ -1174,6 +1387,7 @@ export type Database = {
       }
       project_updates: {
         Row: {
+          attachment_urls: string[] | null
           author_id: string
           content: string
           created_at: string
@@ -1182,6 +1396,7 @@ export type Database = {
           update_type: string
         }
         Insert: {
+          attachment_urls?: string[] | null
           author_id: string
           content: string
           created_at?: string
@@ -1190,6 +1405,7 @@ export type Database = {
           update_type?: string
         }
         Update: {
+          attachment_urls?: string[] | null
           author_id?: string
           content?: string
           created_at?: string
@@ -1214,6 +1430,7 @@ export type Database = {
           created_at: string
           id: string
           message: string | null
+          posted_by: string | null
           quarter: string
           winner_id: string
         }
@@ -1223,6 +1440,7 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string | null
+          posted_by?: string | null
           quarter: string
           winner_id: string
         }
@@ -1232,6 +1450,7 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string | null
+          posted_by?: string | null
           quarter?: string
           winner_id?: string
         }
@@ -1580,6 +1799,33 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      team_messages: {
+        Row: {
+          attachment_urls: string[] | null
+          content: string | null
+          created_at: string
+          group_id: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          sender_id?: string
         }
         Relationships: []
       }

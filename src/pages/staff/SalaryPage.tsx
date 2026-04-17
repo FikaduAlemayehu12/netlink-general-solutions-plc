@@ -111,7 +111,7 @@ export default function SalaryPage() {
     ]);
     setProfiles(profilesRes.data || []);
     setConfigs(configsRes.data || []);
-    setPayments(paymentsRes.data || []);
+    setPayments((paymentsRes.data || []) as SalaryPayment[]);
     setLoading(false);
   };
 

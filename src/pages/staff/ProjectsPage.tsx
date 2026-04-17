@@ -276,7 +276,8 @@ export default function ProjectsPage() {
       group_id: selectedGroup.id,
       target_percentage: milestoneForm.target_percentage,
       target_date: format(milestoneForm.target_date, "yyyy-MM-dd"),
-    });
+      title: `Milestone ${milestoneForm.target_percentage}%`,
+    } as any);
     setMilestoneForm({ target_percentage: 25, target_date: undefined });
     setShowAddMilestone(false);
     loadMilestones(selectedGroup.id);
