@@ -671,6 +671,7 @@ export type Database = {
           emoji: string
           id: string
           message_id: string
+          reaction: string | null
           user_id: string
         }
         Insert: {
@@ -678,6 +679,7 @@ export type Database = {
           emoji: string
           id?: string
           message_id: string
+          reaction?: string | null
           user_id: string
         }
         Update: {
@@ -685,6 +687,7 @@ export type Database = {
           emoji?: string
           id?: string
           message_id?: string
+          reaction?: string | null
           user_id?: string
         }
         Relationships: [
@@ -909,8 +912,10 @@ export type Database = {
           period_type: string
           record_count: number | null
           staff_id: string
+          status: string | null
           total_actual: number | null
           total_planned: number | null
+          total_plans: number | null
           updated_at: string
         }
         Insert: {
@@ -922,8 +927,10 @@ export type Database = {
           period_type: string
           record_count?: number | null
           staff_id: string
+          status?: string | null
           total_actual?: number | null
           total_planned?: number | null
+          total_plans?: number | null
           updated_at?: string
         }
         Update: {
@@ -935,8 +942,10 @@ export type Database = {
           period_type?: string
           record_count?: number | null
           staff_id?: string
+          status?: string | null
           total_actual?: number | null
           total_planned?: number | null
+          total_plans?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -972,6 +981,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_performance_records: {
+        Row: {
+          achievement_pct: number | null
+          actual_value: number
+          approved_at: string | null
+          approved_by: string | null
+          ceo_adjusted_grade: number | null
+          ceo_notes: string | null
+          created_at: string
+          flagged: boolean | null
+          grade: number
+          id: string
+          period_key: string
+          plan_id: string | null
+          plan_type: string
+          planned_value: number
+          staff_id: string
+          status: string
+        }
+        Insert: {
+          achievement_pct?: number | null
+          actual_value?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          ceo_adjusted_grade?: number | null
+          ceo_notes?: string | null
+          created_at?: string
+          flagged?: boolean | null
+          grade?: number
+          id?: string
+          period_key: string
+          plan_id?: string | null
+          plan_type: string
+          planned_value?: number
+          staff_id: string
+          status?: string
+        }
+        Update: {
+          achievement_pct?: number | null
+          actual_value?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          ceo_adjusted_grade?: number | null
+          ceo_notes?: string | null
+          created_at?: string
+          flagged?: boolean | null
+          grade?: number
+          id?: string
+          period_key?: string
+          plan_id?: string | null
+          plan_type?: string
+          planned_value?: number
+          staff_id?: string
+          status?: string
+        }
+        Relationships: []
       }
       plan_reactions: {
         Row: {
@@ -1097,6 +1163,7 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          end_date: string | null
           id: string
           member_ids: string[] | null
           name: string
@@ -1107,6 +1174,7 @@ export type Database = {
           created_at?: string
           created_by: string
           description?: string | null
+          end_date?: string | null
           id?: string
           member_ids?: string[] | null
           name: string
@@ -1117,11 +1185,45 @@ export type Database = {
           created_at?: string
           created_by?: string
           description?: string | null
+          end_date?: string | null
           id?: string
           member_ids?: string[] | null
           name?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      project_milestones: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          notes: string | null
+          status: string
+          target_date: string | null
+          target_percentage: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          notes?: string | null
+          status?: string
+          target_date?: string | null
+          target_percentage?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          target_date?: string | null
+          target_percentage?: number
+          title?: string
         }
         Relationships: []
       }
@@ -1580,6 +1682,33 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      team_messages: {
+        Row: {
+          attachment_urls: string[] | null
+          content: string | null
+          created_at: string
+          group_id: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          sender_id?: string
         }
         Relationships: []
       }
