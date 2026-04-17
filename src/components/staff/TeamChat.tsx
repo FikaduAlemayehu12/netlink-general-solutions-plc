@@ -155,7 +155,7 @@ export default function TeamChat({ groupId, groupName, onClose }: TeamChatProps)
     if (existing) {
       await supabase.from("message_reactions").delete().eq("id", existing.id);
     } else {
-      await supabase.from("message_reactions").insert({ message_id: messageId, user_id: user.id, reaction: emoji });
+      await supabase.from("message_reactions").insert({ message_id: messageId, user_id: user.id, emoji, reaction: emoji } as any);
     }
   };
 

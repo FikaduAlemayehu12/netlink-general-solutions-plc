@@ -57,11 +57,11 @@ interface SalaryPayment {
   payment_type: string;
   period_start: string;
   period_end: string;
-  units: number;
-  base_amount: number;
-  gross_salary: number;
-  deductions: number;
-  net_salary: number;
+  units: number | null;
+  base_amount: number | null;
+  gross_salary: number | null;
+  deductions: number | null;
+  net_salary: number | null;
   status: string;
   notes: string | null;
   created_by: string;

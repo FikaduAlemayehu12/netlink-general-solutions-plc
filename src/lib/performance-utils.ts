@@ -50,7 +50,7 @@ export async function recalculateMonthlyPerformance(staffId: string, monthDate: 
   if (!weeklySummaries || weeklySummaries.length === 0) return;
 
   const avgGrade = weeklySummaries.reduce((sum, r) => sum + Number(r.average_grade), 0) / weeklySummaries.length;
-  const flaggedCount = weeklySummaries.reduce((sum, r) => sum + r.flagged_count, 0);
+  const flaggedCount = weeklySummaries.reduce((sum, r) => sum + (r.flagged_count ?? 0), 0);
 
   await supabase.from("performance_summaries").upsert({
     staff_id: staffId,
@@ -82,7 +82,7 @@ export async function recalculateQuarterlyPerformance(staffId: string, quarterDa
   if (!monthlySummaries || monthlySummaries.length === 0) return;
 
   const avgGrade = monthlySummaries.reduce((sum, r) => sum + Number(r.average_grade), 0) / monthlySummaries.length;
-  const flaggedCount = monthlySummaries.reduce((sum, r) => sum + r.flagged_count, 0);
+  const flaggedCount = monthlySummaries.reduce((sum, r) => sum + (r.flagged_count ?? 0), 0);
 
   await supabase.from("performance_summaries").upsert({
     staff_id: staffId,

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 interface MilestoneWithProject {
   id: string;
   target_percentage: number;
-  target_date: string;
+  target_date: string | null;
   status: string;
   group_id: string;
   project_name: string;

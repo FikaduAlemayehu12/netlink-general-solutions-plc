@@ -93,7 +93,7 @@ export default function Blog() {
       .in("audience", ["client", "both"])
       .order("created_at", { ascending: false })
       .then(({ data }) => {
-        const items = (data || []) as SiteContent[];
+        const items = (data || []) as unknown as SiteContent[];
         setNews(items.filter(i => i.content_type === "news"));
         setTestimonials(items.filter(i => i.content_type === "testimonial"));
         setGallery(items.filter(i => i.content_type === "gallery"));
