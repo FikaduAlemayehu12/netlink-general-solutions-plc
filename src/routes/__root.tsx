@@ -48,6 +48,8 @@ export const Route = createRootRoute({
       { name: "twitter:title", content: "Netlink General Solutions" },
       { name: "twitter:description", content: "Netlink General Solutions - IT Infrastructure, Network Solutions & Digital Transformation" },
       { name: "twitter:card", content: "summary" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/2007c7c1-6469-4865-a42c-617dc3ee0fbb" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/2007c7c1-6469-4865-a42c-617dc3ee0fbb" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
