@@ -57,11 +57,11 @@ interface SalaryPayment {
   payment_type: string;
   period_start: string;
   period_end: string;
-  units: number | null;
-  base_amount: number | null;
-  gross_salary: number | null;
-  deductions: number | null;
-  net_salary: number | null;
+  units: number;
+  base_amount: number;
+  gross_salary: number;
+  deductions: number;
+  net_salary: number;
   status: string;
   notes: string | null;
   created_by: string;
@@ -111,7 +111,7 @@ export default function SalaryPage() {
     ]);
     setProfiles(profilesRes.data || []);
     setConfigs(configsRes.data || []);
-    setPayments(paymentsRes.data || []);
+    setPayments((paymentsRes.data || []) as SalaryPayment[]);
     setLoading(false);
   };
 
