@@ -1244,10 +1244,12 @@ export type Database = {
       }
       project_groups: {
         Row: {
+          completed_at: string | null
           created_at: string
           created_by: string
           description: string | null
           end_date: string | null
+          final_attachment_urls: string[] | null
           id: string
           member_ids: string[] | null
           name: string
@@ -1256,10 +1258,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          completed_at?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           end_date?: string | null
+          final_attachment_urls?: string[] | null
           id?: string
           member_ids?: string[] | null
           name: string
@@ -1268,10 +1272,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          completed_at?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           end_date?: string | null
+          final_attachment_urls?: string[] | null
           id?: string
           member_ids?: string[] | null
           name?: string
@@ -1381,6 +1387,7 @@ export type Database = {
       }
       project_updates: {
         Row: {
+          attachment_urls: string[] | null
           author_id: string
           content: string
           created_at: string
@@ -1389,6 +1396,7 @@ export type Database = {
           update_type: string
         }
         Insert: {
+          attachment_urls?: string[] | null
           author_id: string
           content: string
           created_at?: string
@@ -1397,6 +1405,7 @@ export type Database = {
           update_type?: string
         }
         Update: {
+          attachment_urls?: string[] | null
           author_id?: string
           content?: string
           created_at?: string
