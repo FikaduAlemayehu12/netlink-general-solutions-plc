@@ -1251,6 +1251,7 @@ export type Database = {
           id: string
           member_ids: string[] | null
           name: string
+          start_date: string | null
           status: string
           updated_at: string
         }
@@ -1262,6 +1263,7 @@ export type Database = {
           id?: string
           member_ids?: string[] | null
           name: string
+          start_date?: string | null
           status?: string
           updated_at?: string
         }
@@ -1273,6 +1275,7 @@ export type Database = {
           id?: string
           member_ids?: string[] | null
           name?: string
+          start_date?: string | null
           status?: string
           updated_at?: string
         }
@@ -1280,30 +1283,42 @@ export type Database = {
       }
       project_milestones: {
         Row: {
+          action_items: string | null
+          actual_date: string | null
           created_at: string
           group_id: string
           id: string
           notes: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
           status: string
           target_date: string | null
           target_percentage: number
           title: string
         }
         Insert: {
+          action_items?: string | null
+          actual_date?: string | null
           created_at?: string
           group_id: string
           id?: string
           notes?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
           status?: string
           target_date?: string | null
           target_percentage?: number
           title: string
         }
         Update: {
+          action_items?: string | null
+          actual_date?: string | null
           created_at?: string
           group_id?: string
           id?: string
           notes?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
           status?: string
           target_date?: string | null
           target_percentage?: number
@@ -1314,7 +1329,9 @@ export type Database = {
       project_tasks: {
         Row: {
           assigned_to: string | null
+          attachments: string[] | null
           created_at: string
+          created_by: string | null
           description: string | null
           due_date: string | null
           group_id: string
@@ -1326,7 +1343,9 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          attachments?: string[] | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           due_date?: string | null
           group_id: string
@@ -1338,7 +1357,9 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          attachments?: string[] | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           due_date?: string | null
           group_id?: string
@@ -1400,6 +1421,7 @@ export type Database = {
           created_at: string
           id: string
           message: string | null
+          posted_by: string | null
           quarter: string
           winner_id: string
         }
@@ -1409,6 +1431,7 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string | null
+          posted_by?: string | null
           quarter: string
           winner_id: string
         }
@@ -1418,6 +1441,7 @@ export type Database = {
           created_at?: string
           id?: string
           message?: string | null
+          posted_by?: string | null
           quarter?: string
           winner_id?: string
         }
