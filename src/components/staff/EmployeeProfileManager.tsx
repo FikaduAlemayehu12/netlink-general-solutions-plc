@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ROLE_LABELS, type AppRole } from "@/lib/supabase";
-import { openExperienceLetterPDF, downloadAsWord, type ExperienceLetterPDFData } from "@/lib/experience-letter-pdf";
+import { openExperienceLetterPDF, downloadAsWord, downloadAsExcel, generateExperienceLetterHTML, type ExperienceLetterPDFData } from "@/lib/experience-letter-pdf";
 
 const QUALIFICATION_TYPES = ["BA", "BSc", "MBA", "MSc", "PhD", "Diploma", "Certificate", "Professional Certification"];
 const DOCUMENT_TYPES = [
@@ -48,6 +48,8 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
   const [documents, setDocuments] = useState<any[]>([]);
   const [letters, setLetters] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [previewLetter, setPreviewLetter] = useState<any | null>(null);
+  const [selectedAuditLog, setSelectedAuditLog] = useState<any | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
 
   const [editingEmpProfile, setEditingEmpProfile] = useState(false);
@@ -248,35 +250,36 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
     else { toast.success("Letter rejected"); loadAll(); }
   };
 
-  const handleExportPDF = (letter: any) => {
-    const pdfData: ExperienceLetterPDFData = {
-      staffName: profile?.full_name || "Unknown",
-      position: profile?.position || empProfile?.hiring_position || "Staff",
-      department: empProfile?.department || "",
-      periodStart: letter.period_start || empProfile?.hiring_date || "",
-      periodEnd: letter.period_end || format(new Date(), "yyyy-MM-dd"),
-      content: letter.content || "",
-      referenceNumber: `NGL-${letter.letter_type?.toUpperCase().slice(0, 3)}-${letter.id?.slice(0, 8).toUpperCase()}`,
-      generatedData: letter.generated_data,
-      letterType: letter.letter_type || "experience",
-      approvedDate: letter.ceo_approved_at || letter.hr_approved_at,
-    };
-    openExperienceLetterPDF(pdfData);
-  };
+  const handleExportPDF = (letter: any) => openExperienceLetterPDF(buildPdfData(letter));
 
-  const handleExportWord = (letter: any) => {
-    const pdfData: ExperienceLetterPDFData = {
-      staffName: profile?.full_name || "Unknown",
-      position: profile?.position || empProfile?.hiring_position || "Staff",
-      department: empProfile?.department || "",
-      periodStart: letter.period_start || empProfile?.hiring_date || "",
-      periodEnd: letter.period_end || format(new Date(), "yyyy-MM-dd"),
-      content: letter.content || "",
-      referenceNumber: `NGL-${letter.letter_type?.toUpperCase().slice(0, 3)}-${letter.id?.slice(0, 8).toUpperCase()}`,
-      generatedData: letter.generated_data,
-      letterType: letter.letter_type || "experience",
-    };
-    downloadAsWord(pdfData);
+  const buildPdfData = (letter: any): ExperienceLetterPDFData => ({
+    staffName: profile?.full_name || "Unknown",
+    position: profile?.position || empProfile?.hiring_position || "Staff",
+    department: empProfile?.department || "",
+    periodStart: letter.period_start || empProfile?.hiring_date || "",
+    periodEnd: letter.period_end || format(new Date(), "yyyy-MM-dd"),
+    content: letter.content || "",
+    referenceNumber: `NGL-${letter.letter_type?.toUpperCase().slice(0, 3)}-${letter.id?.slice(0, 8).toUpperCase()}`,
+    generatedData: letter.generated_data,
+    letterType: letter.letter_type || "experience",
+    approvedDate: letter.ceo_approved_at || letter.hr_approved_at,
+  });
+
+  const handleExportWord = (letter: any) => downloadAsWord(buildPdfData(letter));
+  const handleExportExcel = (letter: any) => downloadAsExcel(buildPdfData(letter));
+
+  const deleteLetter = async (letterId: string) => {
+    if (!canManage) return;
+    if (!confirm("Delete this letter permanently? This action cannot be undone.")) return;
+    const { error } = await supabase.from("experience_letters" as any).delete().eq("id", letterId);
+    if (error) { toast.error(error.message); return; }
+    await supabase.from("employee_audit_log").insert({
+      user_id: targetUserId!, changed_by: user!.id,
+      change_type: "delete", table_name: "experience_letters",
+      old_data: { id: letterId } as any,
+    });
+    toast.success("Letter deleted");
+    loadAll();
   };
 
   if (loading) {
