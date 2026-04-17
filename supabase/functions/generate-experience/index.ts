@@ -108,7 +108,7 @@ serve(async (req) => {
     let aiContent = "";
 
     if (LOVABLE_API_KEY) {
-      const systemPrompt = `You are an HR professional writing official employee experience letters for Netting General Solutions, an Ethiopian IT company. Write formal, professional experience letters suitable for official use. Include specific metrics and achievements based on the provided data. The letter should be in formal business letter format.`;
+      const systemPrompt = `You are an HR professional writing official employee experience letters for Netlink General Solutions PLC, an Ethiopian IT company headquartered in Addis Ababa (email info@netlink-gs.com, phone +251913671010). Write a formal, professional experience letter in clean prose suitable for official use. Use perfect English grammar and spelling. Do NOT use markdown formatting (no asterisks, no hashes, no backticks, no horizontal rules). Do NOT include the company letterhead, address, phone, email, or date — those are rendered separately by the document template. Start directly with the salutation "To Whom It May Concern,". Use short, well-structured paragraphs. Refer to the company exactly as "Netlink General Solutions PLC".`;
 
       const userPrompt = `Generate a professional ${letterType || "experience"} letter for the following employee:
 
@@ -130,7 +130,7 @@ Performance Summary:
 - Average performance grade: ${generatedData.statistics.averagePerformanceGrade}
 - Total performance points: ${generatedData.statistics.totalPerformancePoints}
 
-Write a comprehensive, formal experience letter that highlights the employee's contributions and performance. Include specific numbers and achievements. The letter should be from "Netting General Solutions" management.`;
+Write a comprehensive, formal experience letter that highlights the employee's contributions and performance. Include specific numbers and achievements. The letter should be issued by Netlink General Solutions PLC management. Output plain prose only — no markdown, no letterhead, no contact info block.`;
 
       try {
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -157,27 +157,28 @@ Write a comprehensive, formal experience letter that highlights the employee's c
       }
     }
 
-    // If AI failed, generate a template
+    // If AI failed, generate a template (no letterhead — rendered by template)
     if (!aiContent) {
-      aiContent = `EXPERIENCE LETTER
+      aiContent = `To Whom It May Concern,
 
-To Whom It May Concern,
+This is to certify that ${generatedData.staffName} has been employed at Netlink General Solutions PLC as ${generatedData.position}${generatedData.department ? ` in the ${generatedData.department} department` : ""}.
 
-This is to certify that ${generatedData.staffName} has been employed at Netting General Solutions as ${generatedData.position}${generatedData.department ? ` in the ${generatedData.department} department` : ""}.
-
-Period of Employment: ${generatedData.periodStart || "N/A"} to ${generatedData.periodEnd}
+Period of Employment: ${generatedData.periodStart || "N/A"} to ${generatedData.periodEnd}.
 
 During their tenure, ${generatedData.staffName} has demonstrated the following achievements:
-- Participated in ${generatedData.statistics.projectsParticipated} project(s)
-- Completed ${generatedData.statistics.tasksCompleted} task(s)
-- Handled ${generatedData.statistics.ticketsHandled} support ticket(s)
-- Logged ${generatedData.statistics.totalWorkHours} total work hours
-- Achieved an average performance grade of ${generatedData.statistics.averagePerformanceGrade}
+
+Participated in ${generatedData.statistics.projectsParticipated} project(s).
+Completed ${generatedData.statistics.tasksCompleted} task(s) out of ${generatedData.statistics.totalTasks} assigned.
+Handled ${generatedData.statistics.ticketsHandled} support ticket(s), of which ${generatedData.statistics.ticketsResolved} were resolved.
+Logged ${generatedData.statistics.totalWorkHours} total work hours across ${generatedData.statistics.attendanceDays} attendance days.
+Achieved an average performance grade of ${generatedData.statistics.averagePerformanceGrade}.
+
+Throughout the engagement, the employee has shown professionalism, reliability, and a consistent commitment to delivering quality work.
 
 We wish them continued success in their future endeavors.
 
 Sincerely,
-Netting General Solutions Management`;
+Netlink General Solutions PLC`;
     }
 
     // Save the letter
