@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { Activity, Search, Filter, ChevronDown, MessageSquare, Video, Phone, Paperclip } from "lucide-react";
+import { Activity, Search, Filter, ChevronDown, MessageSquare, Video, Phone, Paperclip, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import StaffLayout from "@/components/staff/StaffLayout";
+import { toast } from "sonner";
 
 const MODULE_COLORS: Record<string, string> = {
   tickets: "bg-primary/10 text-primary",
@@ -98,6 +100,16 @@ export default function ActivityLogPage() {
     (profilesData || []).forEach((p) => { map[p.user_id] = p; });
     setProfiles(map);
     setLoading(false);
+  };
+
+  const deleteLog = async (logId: string) => {
+    if (!isCeo) return;
+    if (!confirm("Permanently delete this activity log entry?")) return;
+    const { error } = await supabase.from("activity_logs" as any).delete().eq("id", logId);
+    if (error) { toast.error(error.message); return; }
+    setLogs((prev) => prev.filter((l) => l.id !== logId));
+    setSelectedLog(null);
+    toast.success("Log entry deleted");
   };
 
   if (!isCeo && !isExecutive) {
