@@ -310,6 +310,14 @@ export default function ActivityLogPage() {
                   No additional details recorded for this action.
                 </div>
               )}
+
+              {isCeo && (
+                <div className="border-t pt-3 flex justify-end">
+                  <Button variant="destructive" size="sm" onClick={() => deleteLog(selectedLog.id)}>
+                    <Trash2 className="w-3.5 h-3.5 mr-1" />Delete Entry
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>
