@@ -204,6 +204,66 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          attachment_urls: string[] | null
+          content: string | null
+          created_at: string
+          edited: boolean | null
+          id: string
+          read: boolean | null
+          receiver_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          edited?: boolean | null
+          id?: string
+          read?: boolean | null
+          receiver_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          content?: string | null
+          created_at?: string
+          edited?: boolean | null
+          id?: string
+          read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dm_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          message_id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_id: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       employee_audit_log: {
         Row: {
           change_type: string
@@ -1155,6 +1215,30 @@ export type Database = {
           position?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      project_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
         }
         Relationships: []
       }
