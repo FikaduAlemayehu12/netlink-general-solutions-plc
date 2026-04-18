@@ -100,6 +100,8 @@ export default function SalaryPage() {
   const [calcResult, setCalcResult] = useState<any>(null);
   const [calculating, setCalculating] = useState(false);
   const [savingPayment, setSavingPayment] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({ method: "bank_transfer", bank: "cbe", account: "", reference: "" });
+  const [payDialog, setPayDialog] = useState<{ id: string; method: string; bank: string; account: string; reference: string } | null>(null);
 
   useEffect(() => { loadData(); }, []);
 
