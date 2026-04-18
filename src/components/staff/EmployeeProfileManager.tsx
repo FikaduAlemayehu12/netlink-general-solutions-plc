@@ -645,12 +645,12 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
 
                     <div className="flex gap-2 mt-3 flex-wrap">
                       {l.status === "pending_hr" && isHR && <>
-                        <Button size="sm" onClick={() => approveLetterHR(l.id)}><CheckCircle className="w-3.5 h-3.5 mr-1" />HR Approve</Button>
-                        <Button size="sm" variant="destructive" onClick={() => rejectLetter(l.id)}><XCircle className="w-3.5 h-3.5 mr-1" />Reject</Button>
+                        <Button size="sm" onClick={() => approveLetterHR(l)}><CheckCircle className="w-3.5 h-3.5 mr-1" />HR Approve</Button>
+                        <Button size="sm" variant="destructive" onClick={() => rejectLetter(l)}><XCircle className="w-3.5 h-3.5 mr-1" />Reject</Button>
                       </>}
                       {l.status === "pending_ceo" && isCeo && <>
-                        <Button size="sm" onClick={() => approveLetterCEO(l.id)}><CheckCircle className="w-3.5 h-3.5 mr-1" />CEO Approve</Button>
-                        <Button size="sm" variant="destructive" onClick={() => rejectLetter(l.id)}><XCircle className="w-3.5 h-3.5 mr-1" />Reject</Button>
+                        <Button size="sm" onClick={() => approveLetterCEO(l)}><CheckCircle className="w-3.5 h-3.5 mr-1" />CEO Approve</Button>
+                        <Button size="sm" variant="destructive" onClick={() => rejectLetter(l)}><XCircle className="w-3.5 h-3.5 mr-1" />Reject</Button>
                       </>}
                       {l.status === "approved" && <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"><Award className="w-3.5 h-3.5 mr-1" />Officially Approved</Badge>}
 
