@@ -86,7 +86,8 @@ export default function SiteContentPage() {
   };
 
   const handleSave = async () => {
-    if (!form.title.trim() || !user) return;
+    if (!form.title.trim()) { toast({ title: "Title is required", variant: "destructive" }); return; }
+    if (!user) return;
     const payload: any = {
       content_type: form.content_type, title: form.title, content: form.content || null,
       audience: form.audience, status: form.status, attachment_urls: files, author_id: user.id,
@@ -97,11 +98,13 @@ export default function SiteContentPage() {
 
     if (editingId) {
       delete payload.author_id;
-      await supabase.from("site_content" as any).update(payload).eq("id", editingId);
+      const { error } = await supabase.from("site_content" as any).update(payload).eq("id", editingId);
+      if (error) { toast({ title: "Error updating content", description: error.message, variant: "destructive" }); return; }
       logActivity("update", "announcements" as any, editingId, "site_content", { title: form.title, content_type: form.content_type });
       toast({ title: "Content updated" });
     } else {
-      await supabase.from("site_content" as any).insert(payload);
+      const { error } = await supabase.from("site_content" as any).insert(payload);
+      if (error) { toast({ title: "Error creating content", description: error.message, variant: "destructive" }); return; }
       logActivity("create", "announcements" as any, undefined, "site_content", { title: form.title, content_type: form.content_type, audience: form.audience });
       toast({ title: "Content created" });
     }

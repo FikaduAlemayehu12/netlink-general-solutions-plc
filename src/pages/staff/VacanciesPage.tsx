@@ -76,10 +76,11 @@ export default function VacanciesPage() {
     if (!form.title.trim()) { toast({ title: "Title is required", variant: "destructive" }); return; }
     if (!user) return;
 
-    const payload = { ...form, openings: Number(form.openings) || 1, author_id: user.id } as any;
+    const payload = { ...form, openings: Number(form.openings) || 1, created_by: user.id } as any;
     if (!payload.deadline) delete payload.deadline;
 
     if (editingId) {
+      delete payload.created_by;
       const { error } = await supabase.from("job_vacancies" as any).update(payload).eq("id", editingId);
       if (error) { toast({ title: "Error updating vacancy", description: error.message, variant: "destructive" }); return; }
       logActivity("update", "announcements" as any, editingId, "job_vacancy", { title: form.title, vacancy_type: form.vacancy_type, status: form.status });
