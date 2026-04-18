@@ -21,6 +21,7 @@ import { calculateDeductions, getTaxBracketLabel } from "@/lib/ethiopian-tax";
 import { openPayslipPDF, type PayslipData } from "@/lib/payslip-pdf";
 import { calculateMonthlyAbsences, type MonthlyAbsenceSummary } from "@/lib/absence-penalty";
 import { isEthiopianHoliday, getExpectedHours } from "@/lib/ethiopian-holidays";
+import { ETHIOPIAN_BANKS, MOBILE_PROVIDERS, PAYMENT_METHODS, getBankLabel } from "@/lib/ethiopian-banks";
 import { toast } from "sonner";
 
 const PAYMENT_TYPES = [
