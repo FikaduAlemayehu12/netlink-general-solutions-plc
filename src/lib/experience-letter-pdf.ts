@@ -104,7 +104,7 @@ export function generateExperienceLetterHTML(data: ExperienceLetterPDFData): str
     .page-footer .pn{font-weight:700;letter-spacing:0.4px;font-size:9px}
 
     /* ===== Body ===== */
-    .body{padding:6mm 22mm 4mm 22mm;position:relative;z-index:1}
+    .body{padding:4mm 18mm 4mm 18mm;position:relative;z-index:1}
     .first-page-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid ${BRAND.primaryGreen};color:${BRAND.deepBlue};font-size:11px}
     .first-page-meta .left{font-weight:700}
     .first-page-meta .right{color:#666}
