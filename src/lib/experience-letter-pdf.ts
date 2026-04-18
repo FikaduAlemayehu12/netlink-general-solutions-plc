@@ -1,5 +1,6 @@
 // Generate professional Experience Letter as printable HTML (opens in new window for PDF/print)
-// Format is FIXED — official document layout, world-class typography, A4 single-page preferred.
+// Format is FIXED — official document layout, world-class typography, A4 with paginated multi-page support.
+// Brand colors: electric blue #0084D1 → bright green #00E68A gradient, primary green #00B36B, deep blue #1E4C91.
 
 const LOGO_URL = "https://lksorcvlwtbhjwzirweg.supabase.co/storage/v1/object/public/employee-documents/company%2Fnetlink-logo.png";
 
@@ -10,6 +11,15 @@ const COMPANY = {
   phone: "+251913671010",
   website: "www.netlink-gs.com",
   location: "Addis Ababa, Ethiopia",
+};
+
+const BRAND = {
+  gradient: "linear-gradient(135deg, #0084D1 0%, #00B36B 50%, #00E68A 100%)",
+  electricBlue: "#0084D1",
+  primaryGreen: "#00B36B",
+  brightGreen: "#00E68A",
+  deepBlue: "#1E4C91",
+  ink: "#1a2235",
 };
 
 export interface ExperienceLetterPDFData {
@@ -23,10 +33,10 @@ export interface ExperienceLetterPDFData {
   generatedData?: any;
   letterType: string;
   approvedDate?: string;
+  approvalAudit?: Array<{ action: string; by: string; role: string; at: string; reason?: string }>;
 }
 
 function cleanContent(text: string): string {
-  // Strip markdown noise, normalize whitespace, fix common typos.
   let out = text
     .replace(/\*\*/g, "")
     .replace(/\*/g, "")
@@ -39,11 +49,9 @@ function cleanContent(text: string): string {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 
-  // Common name corrections
   out = out.replace(/Netting General Solutions(\s+PLC)?/gi, "Netlink General Solutions PLC");
-  out = out.replace(/Net Link General Solutions/gi, "Netlink General Solutions PLC");
+  out = out.replace(/Net\s?Link General Solutions/gi, "Netlink General Solutions PLC");
 
-  // Smart-quote / dash typography
   out = out
     .replace(/--/g, "—")
     .replace(/(\w)'(\w)/g, "$1\u2019$2");
@@ -68,63 +76,66 @@ export function generateExperienceLetterHTML(data: ExperienceLetterPDFData): str
 
   const styles = `
     *{margin:0;padding:0;box-sizing:border-box}
-    @page{size:A4;margin:18mm 18mm 20mm 18mm}
-    @page :first{margin:0}
-    html,body{font-family:'Georgia','Times New Roman',serif;color:#1a1a2e;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    @page{size:A4;margin:28mm 16mm 24mm 16mm}
+    html,body{font-family:'Georgia','Times New Roman',serif;color:${BRAND.ink};background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body{padding:0}
     .letter-page{max-width:210mm;margin:0 auto;position:relative;padding:0}
-    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:90px;color:rgba(26,26,46,0.04);font-weight:900;white-space:nowrap;z-index:0;pointer-events:none;letter-spacing:8px;text-transform:uppercase}
+    .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:90px;color:rgba(0,179,107,0.05);font-weight:900;white-space:nowrap;z-index:0;pointer-events:none;letter-spacing:8px;text-transform:uppercase}
     .content-wrapper{position:relative;z-index:1}
 
-    /* Full header — only on first page */
-    .header{text-align:center;padding:26px 50px 16px;border-bottom:3px solid #1a1a2e}
-    .logo-section img{height:72px;margin:0 auto 6px;display:block}
-    .company-name{font-size:22px;font-weight:700;color:#1a1a2e;letter-spacing:1.5px;text-transform:uppercase}
-    .company-tagline{font-size:10px;color:#666;letter-spacing:2px;margin-top:2px;text-transform:uppercase}
-    .company-meta{margin-top:8px;font-size:11px;color:#444;line-height:1.55}
-    .company-meta .row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
-    .company-meta .row span{white-space:nowrap}
-    .meta-sep{color:#bbb}
+    /* ===== RUNNING (every-page) HEADER & FOOTER — gradient brand ===== */
+    .page-header{position:fixed;top:0;left:0;right:0;height:24mm;background:${BRAND.gradient};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16mm;z-index:100}
+    .page-header .left{display:flex;align-items:center;gap:10px}
+    .page-header .left img{height:38px;width:38px;background:#fff;border-radius:8px;padding:4px;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
+    .page-header .left .brand{line-height:1.15}
+    .page-header .left .brand .name{font-size:13px;font-weight:700;letter-spacing:0.6px}
+    .page-header .left .brand .tag{font-size:9px;opacity:0.92;letter-spacing:1.2px;text-transform:uppercase}
+    .page-header .right{text-align:right;font-size:10px;line-height:1.5;opacity:0.95}
+    .page-header .right .ref{font-weight:700;font-size:11px}
 
-    .ref-bar{display:flex;justify-content:space-between;padding:10px 50px;font-size:11px;color:#555;border-bottom:1px solid #e0e0e0;background:#fafafa}
+    .page-footer{position:fixed;bottom:0;left:0;right:0;height:18mm;background:${BRAND.gradient};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16mm;z-index:100;font-size:9.5px}
+    .page-footer .meta{display:flex;gap:14px;flex-wrap:wrap}
+    .page-footer .meta span{white-space:nowrap}
+    .page-footer .sep{opacity:0.55}
+    .page-footer .pn{font-weight:700;letter-spacing:0.5px}
 
-    .body{padding:24px 50px 30px}
-    .letter-title{text-align:center;font-size:17px;font-weight:700;color:#1a1a2e;text-transform:uppercase;letter-spacing:3px;margin-bottom:20px;text-decoration:underline;text-underline-offset:6px}
-    .letter-body{font-size:12.5px;line-height:1.75;text-align:justify;hyphens:auto}
-    .letter-body p{margin-bottom:11px;text-indent:0}
-    .letter-body p:first-child{margin-top:0}
+    /* ===== Body ===== */
+    .body{padding:6mm 22mm 4mm 22mm;position:relative;z-index:1}
+    .first-page-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid ${BRAND.primaryGreen};color:${BRAND.deepBlue};font-size:11px}
+    .first-page-meta .left{font-weight:700}
+    .first-page-meta .right{color:#666}
+    .letter-title{text-align:center;font-size:18px;font-weight:700;color:${BRAND.deepBlue};text-transform:uppercase;letter-spacing:3px;margin-bottom:18px;padding-bottom:6px;border-bottom:1px solid ${BRAND.primaryGreen}}
+    .letter-body{font-size:12.5px;line-height:1.8;text-align:justify;hyphens:auto;color:${BRAND.ink}}
+    .letter-body p{margin-bottom:12px;orphans:3;widows:3}
 
-    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0;padding:14px;background:#f8f9fa;border-radius:6px;border:1px solid #e8e8e8;page-break-inside:avoid}
+    .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0;padding:14px;background:linear-gradient(135deg,rgba(0,132,209,0.06),rgba(0,230,138,0.06));border-radius:8px;border:1px solid ${BRAND.primaryGreen}33;page-break-inside:avoid}
     .stat-item{text-align:center;padding:6px}
-    .stat-value{font-size:18px;font-weight:700;color:#1a1a2e}
-    .stat-label{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+    .stat-value{font-size:20px;font-weight:700;color:${BRAND.deepBlue}}
+    .stat-label{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
 
-    .signature-section{margin-top:36px;display:flex;justify-content:space-between;padding:0 20px;page-break-inside:avoid}
+    .signature-section{margin-top:36px;display:flex;justify-content:space-between;padding:0 10px;page-break-inside:avoid}
     .sig-block{text-align:center;width:200px}
-    .sig-line{border-top:1px solid #333;margin-top:46px;padding-top:6px}
-    .sig-name{font-size:12px;font-weight:600}
-    .sig-title{font-size:10px;color:#666}
+    .sig-line{border-top:1.5px solid ${BRAND.deepBlue};margin-top:46px;padding-top:6px}
+    .sig-name{font-size:12px;font-weight:600;color:${BRAND.deepBlue}}
+    .sig-title{font-size:10px;color:#666;font-style:italic}
 
-    .qr-section{display:flex;align-items:center;gap:12px;margin-top:24px;padding:10px;background:#f0f4f8;border-radius:6px;border:1px dashed #c0c8d0;page-break-inside:avoid}
+    .audit-trail{margin-top:22px;padding:10px 12px;background:#f6fbf8;border-left:4px solid ${BRAND.primaryGreen};border-radius:4px;font-size:10px;color:#444;page-break-inside:avoid}
+    .audit-trail .title{font-weight:700;color:${BRAND.deepBlue};font-size:10.5px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.6px}
+    .audit-trail .row{display:flex;gap:8px;padding:2px 0;border-bottom:1px dashed #e0e7e3}
+    .audit-trail .row:last-child{border-bottom:none}
+    .audit-trail .row .when{font-weight:600;min-width:120px;color:${BRAND.primaryGreen}}
+    .audit-trail .row .what{font-weight:600;color:${BRAND.deepBlue};min-width:80px}
+
+    .qr-section{display:flex;align-items:center;gap:12px;margin-top:22px;padding:10px;background:#f0f7f4;border-radius:6px;border:1px dashed ${BRAND.primaryGreen}66;page-break-inside:avoid}
     .qr-section img{width:64px;height:64px}
-    .qr-text{font-size:9px;color:#666;line-height:1.5}
-    .qr-ref{font-weight:700;color:#1a1a2e;font-size:10px}
-
-    .footer{text-align:center;padding:14px 50px;border-top:3px solid #1a1a2e;background:#1a1a2e;color:#fff;margin-top:24px}
-    .footer-content{display:flex;justify-content:center;gap:18px;font-size:10px;flex-wrap:wrap}
-    .footer-separator{color:rgba(255,255,255,0.3)}
-
-    /* Continuation header (page 2+) — minimal: logo + company name only */
-    .running-header{display:none;position:fixed;top:6mm;left:0;right:0;text-align:center;font-size:10px;color:#666;border-bottom:1px solid #e0e0e0;padding:0 18mm 4px}
-    .running-header img{height:18px;vertical-align:middle;margin-right:8px}
-    .running-footer{display:none;position:fixed;bottom:6mm;left:0;right:0;text-align:center;font-size:9px;color:#888;padding:0 18mm}
+    .qr-text{font-size:9.5px;color:#555;line-height:1.5}
+    .qr-ref{font-weight:700;color:${BRAND.deepBlue};font-size:10.5px}
 
     @media print{
       .no-print{display:none!important}
-      .running-header,.running-footer{display:block}
-      .header,.ref-bar,.footer{page-break-inside:avoid}
       .letter-page{box-shadow:none;border:none;max-width:none}
       body{padding:0}
+      /* Use pure CSS multi-page repeating header/footer */
     }
   `;
 
@@ -139,48 +150,65 @@ export function generateExperienceLetterHTML(data: ExperienceLetterPDFData): str
     </div>
   ` : "";
 
+  const auditTrailHtml = (data.approvalAudit && data.approvalAudit.length > 0) ? `
+    <div class="audit-trail">
+      <div class="title">Approval Audit Trail</div>
+      ${data.approvalAudit.map(a => `
+        <div class="row">
+          <span class="when">${new Date(a.at).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</span>
+          <span class="what">${a.action.toUpperCase()}</span>
+          <span>${a.role} — ${a.by}${a.reason ? ` · "${a.reason}"` : ""}</span>
+        </div>
+      `).join("")}
+    </div>
+  ` : "";
+
   const letterTypeDisplay = (data.letterType || "experience").replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>${letterTypeDisplay} Letter - ${data.staffName}</title>
 <style>${styles}</style></head><body>
-<div class="no-print" style="text-align:center;padding:12px;background:#f0f4f8;font-size:13px">
-  <button onclick="window.print()" style="padding:8px 24px;background:#1a1a2e;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:13px;margin-right:8px">Print / Save as PDF</button>
-  <button onclick="window.close()" style="padding:8px 16px;background:#eee;border:1px solid #ccc;border-radius:4px;cursor:pointer;font-size:13px">Close</button>
+<div class="no-print" style="text-align:center;padding:12px;background:linear-gradient(135deg,#0084D1,#00E68A);color:#fff;font-size:13px">
+  <button onclick="window.print()" style="padding:9px 26px;background:#fff;color:${BRAND.deepBlue};border:none;border-radius:6px;cursor:pointer;font-size:13px;margin-right:8px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.2)">⬇ Download / Print PDF</button>
+  <button onclick="window.close()" style="padding:9px 18px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:6px;cursor:pointer;font-size:13px">Close</button>
 </div>
 
-<div class="running-header"><img src="${LOGO_URL}" alt="" />${COMPANY.name}</div>
-<div class="running-footer">${COMPANY.name} — Ref: ${refNum}</div>
+<!-- Repeating header on every page -->
+<div class="page-header">
+  <div class="left">
+    <img src="${LOGO_URL}" alt="" />
+    <div class="brand">
+      <div class="name">${COMPANY.name}</div>
+      <div class="tag">Information Technology &amp; Business Solutions</div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="ref">Ref: ${refNum}</div>
+    <div>${COMPANY.address}</div>
+    <div>${COMPANY.phone} · ${COMPANY.email}</div>
+  </div>
+</div>
+
+<!-- Repeating footer on every page -->
+<div class="page-footer">
+  <div class="meta">
+    <span>${COMPANY.email}</span>
+    <span class="sep">|</span>
+    <span>${COMPANY.phone}</span>
+    <span class="sep">|</span>
+    <span>${COMPANY.website}</span>
+  </div>
+  <div class="pn">${COMPANY.name}</div>
+</div>
 
 <div class="letter-page">
   <div class="watermark">${COMPANY.name}</div>
   <div class="content-wrapper">
-    <div class="header">
-      <div class="logo-section">
-        <img src="${LOGO_URL}" alt="${COMPANY.name} Logo" />
-        <div class="company-name">${COMPANY.name}</div>
-        <div class="company-tagline">Information Technology &amp; Business Solutions</div>
-      </div>
-      <div class="company-meta">
-        <div class="row">
-          <span>${COMPANY.address}</span>
-          <span class="meta-sep">|</span>
-          <span>Email: ${COMPANY.email}</span>
-        </div>
-        <div class="row">
-          <span>Location: ${COMPANY.location}</span>
-          <span class="meta-sep">|</span>
-          <span>Phone: ${COMPANY.phone}</span>
-          <span class="meta-sep">|</span>
-          <span>Date: ${today}</span>
-        </div>
-      </div>
-    </div>
-    <div class="ref-bar">
-      <span>Ref: ${refNum}</span>
-      <span>Issued: ${today}</span>
-    </div>
     <div class="body">
+      <div class="first-page-meta">
+        <div class="left">${letterTypeDisplay} Letter</div>
+        <div class="right">Date: ${today}</div>
+      </div>
       <div class="letter-title">${letterTypeDisplay} Letter</div>
       <div class="letter-body">${bodyHtml}</div>
       ${statsHtml}
@@ -198,24 +226,14 @@ export function generateExperienceLetterHTML(data: ExperienceLetterPDFData): str
           </div>
         </div>
       </div>
+      ${auditTrailHtml}
       <div class="qr-section">
         <img src="${qrUrl}" alt="QR Verification" />
         <div class="qr-text">
           <div class="qr-ref">Document Reference: ${refNum}</div>
           <div>Scan to verify this document's authenticity.</div>
-          <div>Issued: ${today} &middot; Valid for official use</div>
+          <div>Issued: ${today} · Valid for official use</div>
         </div>
-      </div>
-    </div>
-    <div class="footer">
-      <div class="footer-content">
-        <span>${COMPANY.email}</span>
-        <span class="footer-separator">|</span>
-        <span>${COMPANY.phone}</span>
-        <span class="footer-separator">|</span>
-        <span>${COMPANY.website}</span>
-        <span class="footer-separator">|</span>
-        <span>${COMPANY.address}</span>
       </div>
     </div>
   </div>
@@ -229,6 +247,19 @@ export function openExperienceLetterPDF(data: ExperienceLetterPDFData) {
   if (w) {
     w.document.write(html);
     w.document.close();
+    // Auto-trigger print dialog after render so users can save as PDF directly
+    setTimeout(() => { try { w.focus(); } catch {} }, 400);
+  }
+}
+
+// Direct PDF download (uses browser print-to-PDF; auto-opens print dialog)
+export function downloadAsPDF(data: ExperienceLetterPDFData) {
+  const html = generateExperienceLetterHTML(data);
+  const w = window.open("", "_blank");
+  if (w) {
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => { try { w.focus(); w.print(); } catch {} }, 600);
   }
 }
 
@@ -244,7 +275,7 @@ export function downloadAsWord(data: ExperienceLetterPDFData) {
   URL.revokeObjectURL(url);
 }
 
-// Excel-compatible download (single sheet, structured)
+// Excel-compatible download
 export function downloadAsExcel(data: ExperienceLetterPDFData) {
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const stats = data.generatedData?.statistics || {};
@@ -273,9 +304,14 @@ export function downloadAsExcel(data: ExperienceLetterPDFData) {
     ["", ""],
     ["Letter Content", cleanContent(data.content || "")],
   ];
+  if (data.approvalAudit && data.approvalAudit.length) {
+    rows.push(["", ""], ["Approval Audit Trail", ""]);
+    data.approvalAudit.forEach(a => {
+      rows.push([new Date(a.at).toLocaleString(), `${a.action.toUpperCase()} by ${a.role} — ${a.by}${a.reason ? ` (${a.reason})` : ""}`]);
+    });
+  }
   const escape = (v: string) => `"${(v || "").replace(/"/g, '""')}"`;
   const csv = rows.map(r => r.map(escape).join(",")).join("\r\n");
-  // BOM so Excel detects UTF-8
   const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
