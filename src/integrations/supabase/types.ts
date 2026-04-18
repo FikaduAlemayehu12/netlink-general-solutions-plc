@@ -1599,37 +1599,49 @@ export type Database = {
       }
       site_content: {
         Row: {
+          attachment_urls: string[]
           audience: string
           author_id: string | null
+          client_company: string | null
+          client_name: string | null
           content: string | null
           content_type: string
           created_at: string
           featured_image: string | null
           id: string
+          rating: number | null
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          attachment_urls?: string[]
           audience?: string
           author_id?: string | null
+          client_company?: string | null
+          client_name?: string | null
           content?: string | null
           content_type?: string
           created_at?: string
           featured_image?: string | null
           id?: string
+          rating?: number | null
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          attachment_urls?: string[]
           audience?: string
           author_id?: string | null
+          client_company?: string | null
+          client_name?: string | null
           content?: string | null
           content_type?: string
           created_at?: string
           featured_image?: string | null
           id?: string
+          rating?: number | null
           status?: string
           title?: string
           updated_at?: string
