@@ -968,6 +968,56 @@ export default function SalaryPage() {
           </div>
         )}
       </div>
+
+      {/* Mark-as-Paid dialog with bank/method selection */}
+      {payDialog && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={() => setPayDialog(null)}>
+          <div className="bg-card rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-heading font-bold text-lg mb-4">Record Payment</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Payment Method</label>
+                <Select value={payDialog.method} onValueChange={(v) => setPayDialog({ ...payDialog, method: v })}>
+                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                  <SelectContent>{PAYMENT_METHODS.map(m => <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              {payDialog.method === "bank_transfer" && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Bank</label>
+                  <Select value={payDialog.bank} onValueChange={(v) => setPayDialog({ ...payDialog, bank: v })}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent className="max-h-72">{ETHIOPIAN_BANKS.map(b => <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+              {payDialog.method === "mobile_money" && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Provider</label>
+                  <Select value={payDialog.bank} onValueChange={(v) => setPayDialog({ ...payDialog, bank: v })}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>{MOBILE_PROVIDERS.map(b => <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+              {(payDialog.method === "bank_transfer" || payDialog.method === "mobile_money") && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Account / Wallet Number</label>
+                  <Input value={payDialog.account} onChange={(e) => setPayDialog({ ...payDialog, account: e.target.value })} placeholder="e.g. 1000123456789" />
+                </div>
+              )}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Transaction Reference (optional)</label>
+                <Input value={payDialog.reference} onChange={(e) => setPayDialog({ ...payDialog, reference: e.target.value })} placeholder="e.g. TXN20260418..." />
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end mt-5">
+              <Button variant="outline" onClick={() => setPayDialog(null)}>Cancel</Button>
+              <Button onClick={markPaidWithDetails} className="gradient-brand text-primary-foreground">Confirm Payment</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </StaffLayout>
   );
 }
