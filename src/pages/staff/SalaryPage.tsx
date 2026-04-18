@@ -360,6 +360,25 @@ export default function SalaryPage() {
     else { toast.success("Payment marked as paid"); await loadData(); }
   };
 
+  const markPaidWithDetails = async () => {
+    if (!user || !payDialog) return;
+    const { error } = await supabase.from("salary_payments").update({
+      status: "paid",
+      paid_at: new Date().toISOString(),
+      payment_method: payDialog.method,
+      bank_name: payDialog.bank || null,
+      account_number: payDialog.account || null,
+      transaction_reference: payDialog.reference || null,
+    }).eq("id", payDialog.id);
+    if (error) {
+      toast.error("Failed to record payment");
+    } else {
+      toast.success("Payment recorded successfully");
+      setPayDialog(null);
+      await loadData();
+    }
+  };
+
   // Download payslip
   const downloadPayslip = (payment: SalaryPayment) => {
     const staff = profileMap[payment.staff_id];
