@@ -440,6 +440,7 @@ export type Database = {
       }
       experience_letters: {
         Row: {
+          approval_audit: Json
           ceo_approved: boolean | null
           ceo_approved_at: string | null
           ceo_approved_by: string | null
@@ -461,6 +462,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approval_audit?: Json
           ceo_approved?: boolean | null
           ceo_approved_at?: string | null
           ceo_approved_by?: string | null
@@ -482,6 +484,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approval_audit?: Json
           ceo_approved?: boolean | null
           ceo_approved_at?: string | null
           ceo_approved_by?: string | null
@@ -1524,8 +1527,10 @@ export type Database = {
       }
       salary_payments: {
         Row: {
+          account_number: string | null
           approved_at: string | null
           approved_by: string | null
+          bank_name: string | null
           base_amount: number | null
           created_at: string
           created_by: string
@@ -1535,16 +1540,20 @@ export type Database = {
           net_salary: number | null
           notes: string | null
           paid_at: string | null
+          payment_method: string | null
           payment_type: string
           period_end: string
           period_start: string
           staff_id: string
           status: string
+          transaction_reference: string | null
           units: number | null
         }
         Insert: {
+          account_number?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          bank_name?: string | null
           base_amount?: number | null
           created_at?: string
           created_by: string
@@ -1554,16 +1563,20 @@ export type Database = {
           net_salary?: number | null
           notes?: string | null
           paid_at?: string | null
+          payment_method?: string | null
           payment_type: string
           period_end: string
           period_start: string
           staff_id: string
           status?: string
+          transaction_reference?: string | null
           units?: number | null
         }
         Update: {
+          account_number?: string | null
           approved_at?: string | null
           approved_by?: string | null
+          bank_name?: string | null
           base_amount?: number | null
           created_at?: string
           created_by?: string
@@ -1573,11 +1586,13 @@ export type Database = {
           net_salary?: number | null
           notes?: string | null
           paid_at?: string | null
+          payment_method?: string | null
           payment_type?: string
           period_end?: string
           period_start?: string
           staff_id?: string
           status?: string
+          transaction_reference?: string | null
           units?: number | null
         }
         Relationships: []
