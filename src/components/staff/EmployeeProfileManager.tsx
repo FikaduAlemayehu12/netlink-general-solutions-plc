@@ -222,32 +222,61 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
     setGenerating(false);
   };
 
-  const approveLetterHR = async (letterId: string) => {
-    if (!user) return;
-    const { error } = await supabase.from("experience_letters")
-      .update({ hr_approved: true, hr_approved_by: user.id, hr_approved_at: new Date().toISOString(), status: "pending_ceo" })
-      .eq("id", letterId);
-    if (error) toast.error(error.message);
-    else { toast.success("Approved by HR"); loadAll(); }
+  const appendAudit = (existing: any[], action: string, role: string, reason?: string) => {
+    const entry = {
+      action,
+      role,
+      by: profile?.full_name || user?.email || "Unknown",
+      by_id: user?.id || null,
+      at: new Date().toISOString(),
+      ...(reason ? { reason } : {}),
+    };
+    return [...(Array.isArray(existing) ? existing : []), entry];
   };
 
-  const approveLetterCEO = async (letterId: string) => {
+  const approveLetterHR = async (letter: any) => {
     if (!user) return;
+    const audit = appendAudit((letter as any).approval_audit || [], "approved", "HR Manager");
     const { error } = await supabase.from("experience_letters")
-      .update({ ceo_approved: true, ceo_approved_by: user.id, ceo_approved_at: new Date().toISOString(), status: "approved" })
-      .eq("id", letterId);
+      .update({ hr_approved: true, hr_approved_by: user.id, hr_approved_at: new Date().toISOString(), status: "pending_ceo", approval_audit: audit } as any)
+      .eq("id", letter.id);
     if (error) toast.error(error.message);
-    else { toast.success("Approved by CEO — Letter is now official"); loadAll(); }
+    else {
+      await supabase.from("activity_logs").insert({ user_id: user.id, action: "approve", module: "experience_letter", record_id: letter.id, details: { stage: "hr", letter_type: letter.letter_type } as any });
+      toast.success("Approved by HR");
+      loadAll();
+    }
   };
 
-  const rejectLetter = async (letterId: string) => {
+  const approveLetterCEO = async (letter: any) => {
+    if (!user) return;
+    const audit = appendAudit((letter as any).approval_audit || [], "approved", "Chief Executive Officer");
+    const { error } = await supabase.from("experience_letters")
+      .update({ ceo_approved: true, ceo_approved_by: user.id, ceo_approved_at: new Date().toISOString(), status: "approved", approval_audit: audit } as any)
+      .eq("id", letter.id);
+    if (error) toast.error(error.message);
+    else {
+      await supabase.from("activity_logs").insert({ user_id: user.id, action: "approve", module: "experience_letter", record_id: letter.id, details: { stage: "ceo", letter_type: letter.letter_type } as any });
+      toast.success("Approved by CEO — Letter is now official");
+      loadAll();
+    }
+  };
+
+  const rejectLetter = async (letter: any) => {
+    if (!user) return;
     const reason = prompt("Rejection reason:");
     if (!reason) return;
+    const role = isCeo ? "Chief Executive Officer" : isHR ? "HR Manager" : "Reviewer";
+    const audit = appendAudit((letter as any).approval_audit || [], "rejected", role, reason);
     const { error } = await supabase.from("experience_letters")
-      .update({ status: "rejected", rejection_reason: reason })
-      .eq("id", letterId);
+      .update({ status: "rejected", rejection_reason: reason, approval_audit: audit } as any)
+      .eq("id", letter.id);
     if (error) toast.error(error.message);
-    else { toast.success("Letter rejected"); loadAll(); }
+    else {
+      await supabase.from("activity_logs").insert({ user_id: user.id, action: "reject", module: "experience_letter", record_id: letter.id, details: { reason, stage: isCeo ? "ceo" : "hr" } as any });
+      toast.success("Letter rejected");
+      loadAll();
+    }
   };
 
   const handleExportPDF = (letter: any) => openExperienceLetterPDF(buildPdfData(letter));
@@ -263,6 +292,7 @@ export default function EmployeeProfileManager({ staffUserId }: EmployeeProfileM
     generatedData: letter.generated_data,
     letterType: letter.letter_type || "experience",
     approvedDate: letter.ceo_approved_at || letter.hr_approved_at,
+    approvalAudit: (letter as any).approval_audit || [],
   });
 
   const handleExportWord = (letter: any) => downloadAsWord(buildPdfData(letter));
