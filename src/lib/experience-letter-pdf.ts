@@ -74,33 +74,37 @@ export function generateExperienceLetterHTML(data: ExperienceLetterPDFData): str
   const cleanedContent = cleanContent(data.content || "");
   const bodyHtml = paragraphs(cleanedContent);
 
+  // Zigzag SVG mask data URI — creates triangular sawtooth bottom edge
+  const zigzagBottom = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'><polygon points='0,0 100,0 100,2 95,6 90,2 85,6 80,2 75,6 70,2 65,6 60,2 55,6 50,2 45,6 40,2 35,6 30,2 25,6 20,2 15,6 10,2 5,6 0,2' fill='black'/></svg>`)}`;
+  const zigzagTop = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 6' preserveAspectRatio='none'><polygon points='0,6 100,6 100,4 95,0 90,4 85,0 80,4 75,0 70,4 65,0 60,4 55,0 50,4 45,0 40,4 35,0 30,4 25,0 20,4 15,0 10,4 5,0 0,4' fill='black'/></svg>`)}`;
+
   const styles = `
     *{margin:0;padding:0;box-sizing:border-box}
-    @page{size:A4;margin:28mm 16mm 24mm 16mm}
+    @page{size:A4;margin:20mm 14mm 18mm 14mm}
     html,body{font-family:'Georgia','Times New Roman',serif;color:${BRAND.ink};background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
     body{padding:0}
     .letter-page{max-width:210mm;margin:0 auto;position:relative;padding:0}
     .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:90px;color:rgba(0,179,107,0.05);font-weight:900;white-space:nowrap;z-index:0;pointer-events:none;letter-spacing:8px;text-transform:uppercase}
     .content-wrapper{position:relative;z-index:1}
 
-    /* ===== RUNNING (every-page) HEADER & FOOTER — gradient brand ===== */
-    .page-header{position:fixed;top:0;left:0;right:0;height:24mm;background:${BRAND.gradient};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16mm;z-index:100}
-    .page-header .left{display:flex;align-items:center;gap:10px}
-    .page-header .left img{height:38px;width:38px;background:#fff;border-radius:8px;padding:4px;box-shadow:0 2px 6px rgba(0,0,0,0.15)}
-    .page-header .left .brand{line-height:1.15}
-    .page-header .left .brand .name{font-size:13px;font-weight:700;letter-spacing:0.6px}
-    .page-header .left .brand .tag{font-size:9px;opacity:0.92;letter-spacing:1.2px;text-transform:uppercase}
-    .page-header .right{text-align:right;font-size:10px;line-height:1.5;opacity:0.95}
-    .page-header .right .ref{font-weight:700;font-size:11px}
+    /* ===== RUNNING (every-page) HEADER & FOOTER — slim, zigzag, brand gradient ===== */
+    .page-header{position:fixed;top:0;left:0;right:0;height:16mm;background-image:${BRAND.gradient};background-color:#0084D1;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14mm;z-index:100;-webkit-mask-image:url("${zigzagBottom}");mask-image:url("${zigzagBottom}");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;box-shadow:0 2px 8px rgba(0,132,209,0.25)}
+    .page-header .left{display:flex;align-items:center;gap:8px}
+    .page-header .left img{height:28px;width:28px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,0.18)}
+    .page-header .left .brand{line-height:1.1}
+    .page-header .left .brand .name{font-size:11.5px;font-weight:700;letter-spacing:0.5px;font-family:'Helvetica',Arial,sans-serif}
+    .page-header .left .brand .tag{font-size:7.5px;opacity:0.95;letter-spacing:1px;text-transform:uppercase}
+    .page-header .right{text-align:right;font-size:8.5px;line-height:1.35;opacity:0.96;font-family:'Helvetica',Arial,sans-serif}
+    .page-header .right .ref{font-weight:700;font-size:9.5px;letter-spacing:0.3px}
 
-    .page-footer{position:fixed;bottom:0;left:0;right:0;height:18mm;background:${BRAND.gradient};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16mm;z-index:100;font-size:9.5px}
-    .page-footer .meta{display:flex;gap:14px;flex-wrap:wrap}
+    .page-footer{position:fixed;bottom:0;left:0;right:0;height:12mm;background-image:${BRAND.gradient};background-color:#00B36B;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 14mm;z-index:100;font-size:8.5px;font-family:'Helvetica',Arial,sans-serif;-webkit-mask-image:url("${zigzagTop}");mask-image:url("${zigzagTop}");-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;box-shadow:0 -2px 8px rgba(0,179,107,0.25)}
+    .page-footer .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .page-footer .meta span{white-space:nowrap}
-    .page-footer .sep{opacity:0.55}
-    .page-footer .pn{font-weight:700;letter-spacing:0.5px}
+    .page-footer .sep{opacity:0.6}
+    .page-footer .pn{font-weight:700;letter-spacing:0.4px;font-size:9px}
 
     /* ===== Body ===== */
-    .body{padding:6mm 22mm 4mm 22mm;position:relative;z-index:1}
+    .body{padding:4mm 18mm 4mm 18mm;position:relative;z-index:1}
     .first-page-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid ${BRAND.primaryGreen};color:${BRAND.deepBlue};font-size:11px}
     .first-page-meta .left{font-weight:700}
     .first-page-meta .right{color:#666}
