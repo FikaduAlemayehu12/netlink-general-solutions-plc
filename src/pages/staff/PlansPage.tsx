@@ -100,8 +100,11 @@ export default function PlansPage() {
   const [editingComment, setEditingComment] = useState<{ id: string; content: string; planId: string } | null>(null);
 
   useEffect(() => {
-    fetchPlans();
-    fetchProfiles();
+    // Load profiles first, then plans (plans need the profile map for author info)
+    (async () => {
+      await fetchProfiles();
+      await fetchPlans();
+    })();
     const channel = supabase
       .channel('plans-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'plans' }, () => fetchPlans())
@@ -109,13 +112,27 @@ export default function PlansPage() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'plan_comments' }, () => fetchPlans())
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [filter]);
+  }, [filter, profiles.length]);
 
   const fetchPlans = async () => {
-    let q = supabase.from("plans").select("*, profiles!plans_author_id_fkey(full_name, position), plan_reactions(reaction, user_id), plan_comments(id)").order("created_at", { ascending: false });
+    let q = supabase
+      .from("plans")
+      .select("*, plan_reactions(reaction, user_id), plan_comments(id)")
+      .order("created_at", { ascending: false });
     if (filter !== "all") q = q.eq("plan_type", filter);
-    const { data } = await q;
-    setPlans(data || []);
+    const { data, error } = await q;
+    if (error) {
+      console.error("fetchPlans error:", error);
+      toast.error("Failed to load plans");
+    }
+    // Attach profile info manually (no FK between plans and profiles)
+    const profMap: Record<string, any> = {};
+    profiles.forEach((p) => { profMap[p.user_id] = p; });
+    const enriched = (data || []).map((pl: any) => ({
+      ...pl,
+      profiles: profMap[pl.author_id] || { full_name: "Unknown", position: "" },
+    }));
+    setPlans(enriched);
     setLoading(false);
   };
 
@@ -178,6 +195,8 @@ export default function PlansPage() {
     setAttachments([]);
     setShowForm(false);
     setSubmitting(false);
+    toast.success("Plan submitted");
+    fetchPlans();
   };
 
   // Edit plan
@@ -221,8 +240,11 @@ export default function PlansPage() {
   };
 
   const fetchComments = async (planId: string) => {
-    const { data } = await supabase.from("plan_comments").select("*, profiles!plan_comments_author_id_fkey(full_name)").eq("plan_id", planId).order("created_at");
-    setComments((prev) => ({ ...prev, [planId]: data || [] }));
+    const { data } = await supabase.from("plan_comments").select("*").eq("plan_id", planId).order("created_at");
+    const profMap: Record<string, any> = {};
+    profiles.forEach((p) => { profMap[p.user_id] = p; });
+    const enriched = (data || []).map((c: any) => ({ ...c, profiles: profMap[c.author_id] || { full_name: "Unknown" } }));
+    setComments((prev) => ({ ...prev, [planId]: enriched }));
   };
 
   const toggleExpand = (planId: string) => {
