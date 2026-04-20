@@ -147,6 +147,44 @@ export type Database = {
         }
         Relationships: []
       }
+      application_messages: {
+        Row: {
+          application_id: string
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          sender_id: string
+          sender_role: string
+        }
+        Insert: {
+          application_id: string
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          sender_id: string
+          sender_role: string
+        }
+        Update: {
+          application_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          sender_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "job_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance: {
         Row: {
           clock_in: string
