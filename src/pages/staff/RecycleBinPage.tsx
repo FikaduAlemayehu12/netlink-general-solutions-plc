@@ -53,10 +53,10 @@ export default function RecycleBinPage() {
 
   const loadData = async () => {
     const [{ data: deleted }, { data: profs }] = await Promise.all([
-      supabase.from("deleted_records" as any).select("*").order("deleted_at", { ascending: false }).limit(500),
+      supabase.from("recycle_bin").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("profiles").select("user_id, full_name, avatar_url"),
     ]);
-    setRecords((deleted as any[]) || []);
+    setRecords(deleted || []);
     const map: Record<string, any> = {};
     (profs || []).forEach((p) => { map[p.user_id] = p; });
     setProfiles(map);
@@ -65,7 +65,11 @@ export default function RecycleBinPage() {
 
   const permanentDelete = async () => {
     if (!deleteId) return;
-    await supabase.from("deleted_records" as any).delete().eq("id", deleteId);
+    const { error } = await supabase.from("recycle_bin").delete().eq("id", deleteId);
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+      return;
+    }
     setRecords(prev => prev.filter(r => r.id !== deleteId));
     setDeleteId(null);
     toast({ title: "Permanently deleted" });
@@ -74,22 +78,21 @@ export default function RecycleBinPage() {
   const restoreRecord = async (record: any) => {
     setRestoring(record.id);
     try {
-      const { original_table, record_data, original_id } = record;
-      // Re-insert into original table
-      const cleanData = { ...record_data };
-      delete cleanData.id; // Let DB generate if needed or use original
-      const { error } = await supabase.from(original_table as any).insert({ ...cleanData, id: original_id } as any);
+      const { table_name, record_data, record_id } = record;
+      const cleanData: any = { ...record_data };
+      delete cleanData._reason;
+      delete cleanData.id;
+      const { error } = await supabase.from(table_name as any).insert({ ...cleanData, id: record_id } as any);
       if (error) {
         toast({ title: "Restore failed", description: error.message, variant: "destructive" });
         setRestoring(null);
         return;
       }
-      // Remove from recycle bin
-      await supabase.from("deleted_records" as any).delete().eq("id", record.id);
+      await supabase.from("recycle_bin").delete().eq("id", record.id);
       setRecords(prev => prev.filter(r => r.id !== record.id));
       toast({ title: "Record restored successfully" });
-    } catch {
-      toast({ title: "Restore failed", variant: "destructive" });
+    } catch (e: any) {
+      toast({ title: "Restore failed", description: e?.message, variant: "destructive" });
     }
     setRestoring(null);
   };
@@ -104,11 +107,11 @@ export default function RecycleBinPage() {
     );
   }
 
-  const tables = [...new Set(records.map((r: any) => r.original_table))];
+  const tables = [...new Set(records.map((r: any) => r.table_name))];
   const filtered = records.filter((r: any) => {
-    const matchesTable = filterTable === "all" || r.original_table === filterTable;
+    const matchesTable = filterTable === "all" || r.table_name === filterTable;
     const matchesSearch = !search ||
-      r.original_table?.toLowerCase().includes(search.toLowerCase()) ||
+      r.table_name?.toLowerCase().includes(search.toLowerCase()) ||
       profiles[r.deleted_by]?.full_name?.toLowerCase().includes(search.toLowerCase()) ||
       JSON.stringify(r.record_data)?.toLowerCase().includes(search.toLowerCase());
     return matchesTable && matchesSearch;
@@ -155,7 +158,7 @@ export default function RecycleBinPage() {
           <div className="space-y-2">
             {filtered.map((record: any) => {
               const data = record.record_data || {};
-              const title = data.title || data.content?.slice(0, 60) || data.name || data.full_name || record.original_id;
+              const title = data.title || data.content?.slice(0, 60) || data.name || data.full_name || record.record_id;
               return (
                 <Card key={record.id} className="hover:shadow-sm transition-shadow border-destructive/10">
                   <CardContent className="p-4 flex items-center gap-3">
@@ -164,15 +167,15 @@ export default function RecycleBinPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge className={`text-[10px] ${TABLE_COLORS[record.original_table] || "bg-muted text-muted-foreground"}`}>
-                          {TABLE_LABELS[record.original_table] || record.original_table}
+                        <Badge className={`text-[10px] ${TABLE_COLORS[record.table_name] || "bg-muted text-muted-foreground"}`}>
+                          {TABLE_LABELS[record.table_name] || record.table_name}
                         </Badge>
                         <span className="text-sm font-medium text-foreground truncate">{title}</span>
                       </div>
                       <div className="text-xs text-muted-foreground mt-0.5">
                         Deleted by <span className="font-medium">{profiles[record.deleted_by]?.full_name || "Unknown"}</span>
-                        {" · "}{format(new Date(record.deleted_at), "MMM d, yyyy h:mm a")}
-                        {record.reason && <span> · {record.reason}</span>}
+                        {" · "}{format(new Date(record.created_at), "MMM d, yyyy h:mm a")}
+                        {data._reason && <span> · {data._reason}</span>}
                       </div>
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
