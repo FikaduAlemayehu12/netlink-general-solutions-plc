@@ -22,6 +22,7 @@ interface Application {
   cover_message: string | null;
   cv_url: string | null;
   vacancy_id: string | null;
+  user_id: string | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -96,6 +97,16 @@ export default function ApplicationsPage() {
 
   const updateStatus = async (app: Application, newStatus: string) => {
     await supabase.from("job_applications").update({ status: newStatus }).eq("id", app.id);
+    // Notify applicant of status change
+    if (app.user_id && newStatus !== app.status) {
+      await supabase.from("notifications").insert({
+        user_id: app.user_id,
+        type: "info",
+        title: `Application status: ${newStatus}`,
+        message: `Your application for ${app.position || "the position"} is now "${newStatus}".`,
+        related_id: app.id,
+      });
+    }
     logActivity("status_change", "announcements" as any, app.id, "job_application", {
       applicant: app.applicant_name, from: app.status, to: newStatus,
     });
@@ -135,18 +146,47 @@ export default function ApplicationsPage() {
     if (!selected || !replyMessage.trim()) return;
     setSending(true);
     try {
-      const { error } = await supabase.functions.invoke("send-announcement-email", {
-        body: {
-          title: replySubject || `Update on your application - ${selected.position || "Position"}`,
-          content: replyMessage,
-          recipients: [selected.applicant_email],
-        },
+      // Get current staff user
+      const { data: { user: staffUser } } = await supabase.auth.getUser();
+      if (!staffUser) throw new Error("Not signed in");
+
+      // 1) Insert into in-app application_messages thread
+      const { error: msgErr } = await supabase.from("application_messages" as any).insert({
+        application_id: selected.id,
+        sender_id: staffUser.id,
+        sender_role: "staff",
+        content: replyMessage.trim(),
       });
-      if (error) throw error;
+      if (msgErr) throw msgErr;
+
+      // 2) Notify applicant in-app (if they have an account)
+      if (selected.user_id) {
+        await supabase.from("notifications").insert({
+          user_id: selected.user_id,
+          type: "info",
+          title: replySubject || `Update on your application - ${selected.position || "Position"}`,
+          message: replyMessage.slice(0, 200),
+          related_id: selected.id,
+        });
+      }
+
+      // 3) Also send email (best-effort)
+      try {
+        await supabase.functions.invoke("send-announcement-email", {
+          body: {
+            title: replySubject || `Update on your application - ${selected.position || "Position"}`,
+            content: replyMessage,
+            recipients: [selected.applicant_email],
+          },
+        });
+      } catch (emailErr) {
+        console.warn("Email send failed (in-app message still delivered)", emailErr);
+      }
+
       logActivity("comment", "announcements" as any, selected.id, "job_application", {
         applicant: selected.applicant_name, subject: replySubject, message_preview: replyMessage.slice(0, 100),
       });
-      toast({ title: "Reply sent", description: `Email sent to ${selected.applicant_email}` });
+      toast({ title: "Reply sent", description: `Message delivered to ${selected.applicant_name}'s portal` });
       setReplyOpen(false);
       setReplySubject("");
       setReplyMessage("");

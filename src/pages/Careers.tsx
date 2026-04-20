@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Heart, Zap, Calendar, DollarSign, Upload, FileText, X, Loader2, CheckCircle } from "lucide-react";
+import { Briefcase, Users, Heart, Zap, Calendar, DollarSign, Upload, FileText, X, Loader2, CheckCircle, LayoutDashboard } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Badge } from "@/components/ui/badge";
@@ -231,6 +232,11 @@ export default function Careers() {
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{user.user_metadata?.full_name || user.email}</p>
             </div>
+            <Link to="/portal">
+              <Button variant="outline" size="sm" className="text-xs gap-1.5">
+                <LayoutDashboard className="w-3.5 h-3.5" /> My Portal
+              </Button>
+            </Link>
             <Button variant="ghost" size="sm" className="text-xs" onClick={async () => { await supabase.auth.signOut(); setUser(null); }}>
               Sign out
             </Button>
