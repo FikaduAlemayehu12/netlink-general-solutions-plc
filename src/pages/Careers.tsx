@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Users, Heart, Zap, Calendar, DollarSign, Upload, FileText, X, Loader2, CheckCircle } from "lucide-react";
+import { Briefcase, Users, Heart, Zap, Calendar, DollarSign, Upload, FileText, X, Loader2, CheckCircle, LayoutDashboard } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Badge } from "@/components/ui/badge";
