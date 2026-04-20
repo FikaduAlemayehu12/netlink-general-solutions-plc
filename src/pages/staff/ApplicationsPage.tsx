@@ -97,6 +97,16 @@ export default function ApplicationsPage() {
 
   const updateStatus = async (app: Application, newStatus: string) => {
     await supabase.from("job_applications").update({ status: newStatus }).eq("id", app.id);
+    // Notify applicant of status change
+    if (app.user_id && newStatus !== app.status) {
+      await supabase.from("notifications").insert({
+        user_id: app.user_id,
+        type: "info",
+        title: `Application status: ${newStatus}`,
+        message: `Your application for ${app.position || "the position"} is now "${newStatus}".`,
+        related_id: app.id,
+      });
+    }
     logActivity("status_change", "announcements" as any, app.id, "job_application", {
       applicant: app.applicant_name, from: app.status, to: newStatus,
     });
