@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, CheckCheck, MessageCircle, Award, Trophy, UserPlus, AtSign } from "lucide-react";
+import { Bell, CheckCheck, MessageCircle, Award, Trophy, UserPlus, AtSign, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import StaffLayout from "@/components/staff/StaffLayout";
 
 const TYPE_CONFIG: Record<string, { icon: any; color: string; bg: string }> = {
