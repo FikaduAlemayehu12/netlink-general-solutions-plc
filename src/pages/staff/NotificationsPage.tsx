@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, CheckCheck, MessageCircle, Award, Trophy, UserPlus, AtSign } from "lucide-react";
+import { Bell, CheckCheck, MessageCircle, Award, Trophy, UserPlus, AtSign, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import StaffLayout from "@/components/staff/StaffLayout";
 
 const TYPE_CONFIG: Record<string, { icon: any; color: string; bg: string }> = {
@@ -41,6 +45,7 @@ export default function NotificationsPage() {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => { fetchNotifications(); }, []);
 
@@ -59,6 +64,14 @@ export default function NotificationsPage() {
     fetchNotifications();
   };
 
+  const clearAll = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("notifications").delete().eq("user_id", user.id);
+    setNotifications([]);
+    setConfirmClear(false);
+  };
+
   const handleNotificationClick = async (n: any) => {
     if (!n.read) {
       await supabase.from("notifications").update({ read: true }).eq("id", n.id);
@@ -73,7 +86,7 @@ export default function NotificationsPage() {
   return (
     <StaffLayout>
       <div className="max-w-2xl mx-auto space-y-5">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div>
             <h1 className="text-2xl font-heading font-bold text-foreground flex items-center gap-2">
               <Bell className="w-6 h-6 text-primary" />
@@ -81,11 +94,18 @@ export default function NotificationsPage() {
               {unreadCount > 0 && <span className="text-sm bg-destructive text-destructive-foreground rounded-full px-2 py-0.5">{unreadCount}</span>}
             </h1>
           </div>
-          {unreadCount > 0 && (
-            <Button size="sm" variant="outline" onClick={markAllRead} className="gap-1.5">
-              <CheckCheck className="w-4 h-4" />Mark all read
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {unreadCount > 0 && (
+              <Button size="sm" variant="outline" onClick={markAllRead} className="gap-1.5">
+                <CheckCheck className="w-4 h-4" />Mark all read
+              </Button>
+            )}
+            {notifications.length > 0 && (
+              <Button size="sm" variant="outline" onClick={() => setConfirmClear(true)} className="gap-1.5 text-destructive hover:text-destructive">
+                <Trash2 className="w-4 h-4" />Clear all
+              </Button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -120,6 +140,22 @@ export default function NotificationsPage() {
           </div>
         )}
       </div>
+      <AlertDialog open={confirmClear} onOpenChange={setConfirmClear}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear all notifications?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove all your notifications. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={clearAll} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Clear all
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </StaffLayout>
   );
 }

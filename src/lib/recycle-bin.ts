@@ -11,14 +11,13 @@ export async function archiveAndDelete(
   deletedBy: string,
   reason?: string
 ) {
-  // 1. Archive to recycle bin
-  await supabase.from("deleted_records" as any).insert({
-    original_table: table,
-    original_id: recordId,
+  // 1. Archive to recycle bin (full record snapshot, including reason in record_data)
+  await supabase.from("recycle_bin").insert({
+    table_name: table,
+    record_id: recordId,
     deleted_by: deletedBy,
-    record_data: recordData,
-    reason: reason || null,
-  } as any);
+    record_data: { ...recordData, _reason: reason || null },
+  });
 
   // 2. Delete from original table
   await supabase.from(table as any).delete().eq("id", recordId);
@@ -36,7 +35,7 @@ export async function archiveAndDelete(
           user_id: ceo.user_id,
           type: "deletion",
           title: `Record deleted from ${table}`,
-          message: `${recordData.title || recordData.content?.slice(0, 50) || recordId} was deleted`,
+          message: `${recordData.title || recordData.name || recordData.content?.slice(0, 50) || recordId} was deleted`,
           related_id: recordId,
         });
       }
