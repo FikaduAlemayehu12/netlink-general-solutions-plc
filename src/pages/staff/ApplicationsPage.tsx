@@ -22,6 +22,7 @@ interface Application {
   cover_message: string | null;
   cv_url: string | null;
   vacancy_id: string | null;
+  user_id: string | null;
   status: string;
   created_at: string;
   updated_at: string;
