@@ -149,18 +149,23 @@ export default function ProjectsPage() {
     const { data: { user: authUser } } = await supabase.auth.getUser();
     if (!authUser) return;
     const memberIds = [...new Set([authUser.id, ...groupForm.member_ids])];
-    await supabase.from("project_groups").insert({
+    const { error } = await supabase.from("project_groups").insert({
       name: groupForm.name,
       description: groupForm.description,
       created_by: authUser.id,
       member_ids: memberIds,
       start_date: groupForm.start_date ? format(groupForm.start_date, "yyyy-MM-dd") : null,
       end_date: groupForm.end_date ? format(groupForm.end_date, "yyyy-MM-dd") : null,
-      attachment_urls: groupForm.attachments.length > 0 ? groupForm.attachments : [],
-    } as any);
+      // Initial attachments stored alongside completion attachments
+      final_attachment_urls: groupForm.attachments.length > 0 ? groupForm.attachments : null,
+    });
+    if (error) {
+      toast.error("Failed to create project: " + error.message);
+      return;
+    }
     setGroupForm({ name: "", description: "", member_ids: [], start_date: undefined, end_date: undefined, attachments: [] });
     setShowNewGroup(false);
-    loadGroups();
+    await loadGroups();
     await logActivity("create", "projects", undefined, "project", { name: groupForm.name });
     await notifyCeo("Created", "Projects", `Project "${groupForm.name}" was created`, authUser.id);
     toast.success("Project created successfully");
