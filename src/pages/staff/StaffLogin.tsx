@@ -13,15 +13,19 @@ export default function StaffLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, loading: authLoading } = useAuth();
+  const { user, roles, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // If already logged in, redirect
+  // If already logged in, redirect: staff → dashboard; client (no roles) → portal
   useEffect(() => {
     if (!authLoading && user) {
-      navigate({ to: "/staff/dashboard", replace: true });
+      if (roles.length > 0) {
+        navigate({ to: "/staff/dashboard", replace: true });
+      } else {
+        navigate({ to: "/portal", replace: true });
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, roles, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +47,22 @@ export default function StaffLogin() {
         setError("Invalid credentials. Please check your email and password.");
         setLoading(false);
       } else {
-        window.location.href = "/staff/dashboard";
+        // Verify the user actually has a staff role before sending them to staff portal
+        const { data: { user: signedIn } } = await supabase.auth.getUser();
+        if (signedIn) {
+          const { data: rolesData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", signedIn.id);
+          if (rolesData && rolesData.length > 0) {
+            window.location.href = "/staff/dashboard";
+          } else {
+            // Not staff — sign out and show error
+            await supabase.auth.signOut();
+            setError("This account does not have staff access. Please use the Careers page to sign in as an applicant.");
+            setLoading(false);
+          }
+        }
       }
     } catch (err) {
       console.error("[LOGIN] Error:", err);
