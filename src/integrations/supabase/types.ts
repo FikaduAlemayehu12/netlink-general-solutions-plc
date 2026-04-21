@@ -221,6 +221,102 @@ export type Database = {
         }
         Relationships: []
       }
+      content_comments: {
+        Row: {
+          author_name: string
+          body: string
+          content_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          body: string
+          content_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          body?: string
+          content_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_comments_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "site_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_likes: {
+        Row: {
+          content_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_likes_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "site_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_reactions: {
+        Row: {
+          content_id: string
+          created_at: string
+          id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          id?: string
+          reaction: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reactions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "site_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           created_at: string
@@ -917,6 +1013,21 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      online_visitors: {
+        Row: {
+          last_ping: string
+          visitor_hash: string
+        }
+        Insert: {
+          last_ping?: string
+          visitor_hash: string
+        }
+        Update: {
+          last_ping?: string
+          visitor_hash?: string
         }
         Relationships: []
       }
@@ -1950,11 +2061,37 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_log: {
+        Row: {
+          first_seen: string
+          id: string
+          last_seen: string
+          visit_count: number
+          visitor_hash: string
+        }
+        Insert: {
+          first_seen?: string
+          id?: string
+          last_seen?: string
+          visit_count?: number
+          visitor_hash: string
+        }
+        Update: {
+          first_seen?: string
+          id?: string
+          last_seen?: string
+          visit_count?: number
+          visitor_hash?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_online_count: { Args: never; Returns: number }
+      get_subscriber_count: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1963,6 +2100,8 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      ping_online: { Args: { p_hash: string }; Returns: undefined }
+      track_visitor: { Args: { p_hash: string }; Returns: number }
     }
     Enums: {
       app_role:

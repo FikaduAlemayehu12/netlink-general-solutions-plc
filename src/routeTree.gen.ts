@@ -39,6 +39,7 @@ import { Route as StaffChangePasswordRouteImport } from './routes/staff/change-p
 import { Route as StaffAttendanceRouteImport } from './routes/staff/attendance'
 import { Route as StaffApplicationsRouteImport } from './routes/staff/applications'
 import { Route as StaffActivityLogRouteImport } from './routes/staff/activity-log'
+import { Route as BlogIdRouteImport } from './routes/blog.$id'
 import { Route as StaffAdminUsersRouteImport } from './routes/staff/admin/users'
 
 const TermsRoute = TermsRouteImport.update({
@@ -191,6 +192,11 @@ const StaffActivityLogRoute = StaffActivityLogRouteImport.update({
   path: '/staff/activity-log',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIdRoute = BlogIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => BlogRoute,
+} as any)
 const StaffAdminUsersRoute = StaffAdminUsersRouteImport.update({
   id: '/staff/admin/users',
   path: '/staff/admin/users',
@@ -200,7 +206,7 @@ const StaffAdminUsersRoute = StaffAdminUsersRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/portal': typeof PortalRoute
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/services': typeof ServicesRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/blog/$id': typeof BlogIdRoute
   '/staff/activity-log': typeof StaffActivityLogRoute
   '/staff/applications': typeof StaffApplicationsRoute
   '/staff/attendance': typeof StaffAttendanceRoute
@@ -233,7 +240,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/portal': typeof PortalRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/services': typeof ServicesRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/blog/$id': typeof BlogIdRoute
   '/staff/activity-log': typeof StaffActivityLogRoute
   '/staff/applications': typeof StaffApplicationsRoute
   '/staff/attendance': typeof StaffAttendanceRoute
@@ -267,7 +275,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/careers': typeof CareersRoute
   '/contact': typeof ContactRoute
   '/portal': typeof PortalRoute
@@ -275,6 +283,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/solutions': typeof SolutionsRoute
   '/terms': typeof TermsRoute
+  '/blog/$id': typeof BlogIdRoute
   '/staff/activity-log': typeof StaffActivityLogRoute
   '/staff/applications': typeof StaffApplicationsRoute
   '/staff/attendance': typeof StaffAttendanceRoute
@@ -310,6 +319,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/solutions'
     | '/terms'
+    | '/blog/$id'
     | '/staff/activity-log'
     | '/staff/applications'
     | '/staff/attendance'
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/solutions'
     | '/terms'
+    | '/blog/$id'
     | '/staff/activity-log'
     | '/staff/applications'
     | '/staff/attendance'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/services'
     | '/solutions'
     | '/terms'
+    | '/blog/$id'
     | '/staff/activity-log'
     | '/staff/applications'
     | '/staff/attendance'
@@ -402,7 +414,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   CareersRoute: typeof CareersRoute
   ContactRoute: typeof ContactRoute
   PortalRoute: typeof PortalRoute
@@ -645,6 +657,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffActivityLogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/$id': {
+      id: '/blog/$id'
+      path: '/$id'
+      fullPath: '/blog/$id'
+      preLoaderRoute: typeof BlogIdRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/staff/admin/users': {
       id: '/staff/admin/users'
       path: '/staff/admin/users'
@@ -655,10 +674,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface BlogRouteChildren {
+  BlogIdRoute: typeof BlogIdRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogIdRoute: BlogIdRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   CareersRoute: CareersRoute,
   ContactRoute: ContactRoute,
   PortalRoute: PortalRoute,

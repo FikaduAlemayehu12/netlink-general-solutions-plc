@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Network, Phone, Mail, MapPin, Facebook, MessageCircle, Linkedin, Instagram, Send } from "lucide-react";
 import VisitorCounter from "./VisitorCounter";
+import SubscribeForm from "./SubscribeForm";
 
 export default function Footer() {
   return (
@@ -65,18 +66,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="font-heading font-semibold text-base tracking-wide mb-4 text-cyan-brand">Services</h4>
-            <ul className="space-y-2 text-sm text-primary-foreground/70">
-              <li>Enterprise Network Solutions</li>
-              <li>Business Automation & Intelligence</li>
-              <li>Smart Infrastructure</li>
-              <li>Data Center & Power</li>
-              <li>Network & Cybersecurity</li>
-            </ul>
-          </div>
-
           {/* Contact */}
           <div>
             <h4 className="font-heading font-semibold text-base tracking-wide mb-4 text-cyan-brand">Contact Us</h4>
@@ -99,10 +88,19 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+
+          {/* Newsletter */}
+          <div>
+            <h4 className="font-heading font-semibold text-base tracking-wide mb-4 text-cyan-brand">Stay Updated</h4>
+            <p className="text-sm text-primary-foreground/70 mb-3">
+              Subscribe for the latest insights and company news.
+            </p>
+            <SubscribeForm />
+          </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-primary-foreground/10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-primary-foreground/50">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
             <span>© 2025 Netlink General Solutions. All rights reserved.</span>
             <VisitorCounter />
           </div>
