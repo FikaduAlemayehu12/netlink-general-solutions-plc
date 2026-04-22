@@ -154,8 +154,8 @@ export default function HeroSlideshow() {
       <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-transparent to-navy-dark/40" />
       <div className="absolute inset-0 network-pattern opacity-25" />
 
-      {/* Content */}
-      <div className="relative container mx-auto px-4 md:px-8 pt-20 z-10">
+      {/* Content — centered */}
+      <div className="relative container mx-auto px-4 md:px-8 pt-20 z-10 flex justify-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={`txt-${index}`}
@@ -163,7 +163,7 @@ export default function HeroSlideshow() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-3xl"
+            className="max-w-3xl text-center mx-auto"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-brand/40 bg-cyan-brand/10 backdrop-blur-sm text-cyan-brand text-xs font-medium mb-6 tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-brand animate-pulse" />
@@ -176,10 +176,10 @@ export default function HeroSlideshow() {
                 {slide.highlight}
               </span>
             </h1>
-            <p className="text-body-text text-lg md:text-xl mb-8 max-w-xl leading-relaxed font-body">
+            <p className="text-body-text text-lg md:text-xl mb-8 mx-auto max-w-2xl leading-relaxed font-body">
               {slide.caption}
             </p>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link
                 to="/contact"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-heading font-semibold text-white shadow-glow transition-all hover:scale-[1.02] bg-[image:var(--gradient-brand)] hover:brightness-110"
