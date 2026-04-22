@@ -107,7 +107,6 @@ export default function Footer() {
           <div className="flex gap-4 flex-wrap justify-center">
             <Link to="/privacy" className="hover:text-cyan-brand transition-colors">Privacy Policy</Link>
             <Link to="/terms" className="hover:text-cyan-brand transition-colors">Terms of Service</Link>
-            <Link to="/staff/login" className="hover:text-cyan-brand transition-colors border-l border-primary-foreground/20 pl-4">Staff Portal</Link>
           </div>
         </div>
       </div>
