@@ -27,6 +27,7 @@ const navItems: NavItem[] = [
 const adminItems: NavItem[] = [
   { label: "HR System", path: "/staff/hr", icon: Shield, module: "hr" },
   { label: "User Management", path: "/staff/admin/users", icon: Users, module: "users" },
+  { label: "Site CMS", path: "/staff/site-cms", icon: Newspaper, module: "site_cms" },
   { label: "Job Vacancies", path: "/staff/vacancies", icon: Briefcase, module: "vacancies" },
   { label: "Applications", path: "/staff/applications", icon: ClipboardList, module: "applications" },
   { label: "Site Content", path: "/staff/site-content", icon: Newspaper, module: "site_content" },
