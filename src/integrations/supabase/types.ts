@@ -983,6 +983,30 @@ export type Database = {
           },
         ]
       }
+      module_permissions: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          module: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          module: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          module?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1797,6 +1821,168 @@ export type Database = {
         }
         Relationships: []
       }
+      site_partners: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          company_name: string
+          company_tagline: string | null
+          core_values: string | null
+          founder_message: string | null
+          founder_name: string | null
+          founder_photo_url: string | null
+          founder_title: string | null
+          id: string
+          logo_url: string | null
+          mission: string | null
+          updated_at: string
+          updated_by: string | null
+          vision: string | null
+          welcome_message: string | null
+        }
+        Insert: {
+          company_name?: string
+          company_tagline?: string | null
+          core_values?: string | null
+          founder_message?: string | null
+          founder_name?: string | null
+          founder_photo_url?: string | null
+          founder_title?: string | null
+          id?: string
+          logo_url?: string | null
+          mission?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vision?: string | null
+          welcome_message?: string | null
+        }
+        Update: {
+          company_name?: string
+          company_tagline?: string | null
+          core_values?: string | null
+          founder_message?: string | null
+          founder_name?: string | null
+          founder_photo_url?: string | null
+          founder_title?: string | null
+          id?: string
+          logo_url?: string | null
+          mission?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vision?: string | null
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      site_slides: {
+        Row: {
+          caption: string | null
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_link: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_link?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_link?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_stats: {
+        Row: {
+          created_at: string
+          display_order: number
+          icon: string | null
+          id: string
+          is_active: boolean
+          label: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       staff_permissions: {
         Row: {
           can_create_staff: boolean | null
@@ -2092,6 +2278,10 @@ export type Database = {
     Functions: {
       get_online_count: { Args: never; Returns: number }
       get_subscriber_count: { Args: never; Returns: number }
+      has_module_permission: {
+        Args: { _module: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
