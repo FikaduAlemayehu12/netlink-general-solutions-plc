@@ -1,137 +1,85 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Phone, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-import slideDatacenter from "@/assets/slide-datacenter.jpg";
-import slideNoc from "@/assets/slide-noc.jpg";
-import slideCybersecurity from "@/assets/slide-cybersecurity.jpg";
-import slideSmartcity from "@/assets/slide-smartcity.jpg";
-import slideCabling from "@/assets/slide-cabling.jpg";
+// Bundled fallback assets (used if DB is empty / first paint)
+import slideWelcome from "@/assets/slides/welcome-hero.jpg";
+import slideDatacenter from "@/assets/slides/datacenter-addis.jpg";
+import slideSmartcity from "@/assets/slides/smartcity-addis.jpg";
+import slideTower from "@/assets/slides/network-tower.jpg";
+import slideNoc from "@/assets/slides/cybersecurity-noc.jpg";
 
 interface Slide {
-  src: string;
-  eyebrow: string;
-  title: string;
-  highlight: string;
-  caption: string;
-  external?: boolean;
+  id: string;
+  image_url: string;
+  title: string | null;
+  caption: string | null;
+  cta_label: string | null;
+  cta_link: string | null;
 }
 
-// 4 AI hero shots + 7 curated Unsplash IT photos = 11 slides
-const SLIDES: Slide[] = [
+// Map seeded /src/assets/... paths to bundled imports for instant load
+const BUNDLED: Record<string, string> = {
+  "/src/assets/slides/welcome-hero.jpg": slideWelcome,
+  "/src/assets/slides/datacenter-addis.jpg": slideDatacenter,
+  "/src/assets/slides/smartcity-addis.jpg": slideSmartcity,
+  "/src/assets/slides/network-tower.jpg": slideTower,
+  "/src/assets/slides/cybersecurity-noc.jpg": slideNoc,
+};
+
+const FALLBACK_SLIDES: Slide[] = [
   {
-    src: slideDatacenter,
-    eyebrow: "Data Center Infrastructure",
-    title: "ENGINEERED FOR",
-    highlight: "ZERO DOWNTIME",
-    caption: "Tier-grade data centers, UPS, cooling and power systems built to keep Ethiopia online — 24/7.",
-  },
-  {
-    src: slideNoc,
-    eyebrow: "Network Operations",
-    title: "MONITORED",
-    highlight: "AROUND THE CLOCK",
-    caption: "A live NOC watching every packet, every device, every site — across the country.",
-  },
-  {
-    src: slideCybersecurity,
-    eyebrow: "Cybersecurity",
-    title: "DEFEND. DETECT.",
-    highlight: "RESPOND.",
-    caption: "End-to-end SOC, endpoint protection, and data security backed by certified specialists.",
-  },
-  {
-    src: slideSmartcity,
-    eyebrow: "Smart Infrastructure",
-    title: "CONNECTING",
-    highlight: "EVERY BUILDING",
-    caption: "Structured cabling, IoT, and smart building systems for the cities of tomorrow.",
-  },
-  {
-    src: slideCabling,
-    eyebrow: "Field Engineering",
-    title: "BUILT BY",
-    highlight: "CERTIFIED HANDS",
-    caption: "Internationally certified engineers delivering installations that last decades.",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80",
-    eyebrow: "Enterprise Networking",
-    title: "WLAN, SDN &",
-    highlight: "COLLABORATION",
-    caption: "Modern network architectures that scale from one branch to nationwide deployments.",
-    external: true,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1920&q=80",
-    eyebrow: "Business Intelligence",
-    title: "DATA INTO",
-    highlight: "DECISIONS",
-    caption: "ERP, analytics and digital office tools that turn information into measurable growth.",
-    external: true,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80",
-    eyebrow: "IoT & Smart Devices",
-    title: "EVERY DEVICE",
-    highlight: "TALKS",
-    caption: "Sensors, cameras, controllers — orchestrated into one secure, intelligent fabric.",
-    external: true,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80",
-    eyebrow: "Digital Office",
-    title: "WORK WITHOUT",
-    highlight: "FRICTION",
-    caption: "Unified communications, collaboration suites and digital workflows for modern teams.",
-    external: true,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1548611716-3000815a5803?auto=format&fit=crop&w=1920&q=80",
-    eyebrow: "Power & Energy",
-    title: "SOLAR. UPS.",
-    highlight: "RESILIENCE.",
-    caption: "Hybrid solar, generators and inverter systems that keep critical infrastructure live.",
-    external: true,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1920&q=80",
-    eyebrow: "Engineering Excellence",
-    title: "20+ EXPERTS.",
-    highlight: "ONE MISSION.",
-    caption: "Connecting Ethiopia to the future — one network, one client, one breakthrough at a time.",
-    external: true,
+    id: "fallback-1",
+    image_url: slideWelcome,
+    title: "Welcome to Netlink General Solutions PLC",
+    caption: "Where Ethiopia's digital future begins and ambitious organizations find the technology partner they can trust to build bold, move smart, and grow without limits.",
+    cta_label: "Get Started",
+    cta_link: "/contact",
   },
 ];
 
 const ROTATION_MS = 5000;
 
+function resolveImage(url: string): string {
+  return BUNDLED[url] ?? url;
+}
+
 export default function HeroSlideshow() {
+  const [slides, setSlides] = useState<Slide[]>(FALLBACK_SLIDES);
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (paused) return;
-    const t = setInterval(() => setIndex((i) => (i + 1) % SLIDES.length), ROTATION_MS);
+    supabase
+      .from("site_slides" as any)
+      .select("id, image_url, title, caption, cta_label, cta_link")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true })
+      .then(({ data }) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          setSlides(data as unknown as Slide[]);
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const t = setInterval(() => setIndex((i) => (i + 1) % slides.length), ROTATION_MS);
     return () => clearInterval(t);
-  }, [paused]);
+  }, [slides.length]);
 
-  const slide = SLIDES[index];
-
-  const go = (delta: number) => setIndex((i) => (i + delta + SLIDES.length) % SLIDES.length);
+  const slide = slides[index] ?? slides[0];
 
   return (
     <section
-      className="relative min-h-screen flex items-center overflow-hidden bg-navy-dark"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      aria-label="Netlink General Solutions — featured services slideshow"
+      className="relative min-h-[92vh] flex items-center overflow-hidden bg-navy-dark"
+      aria-label="Netlink General Solutions — featured slideshow"
     >
-      {/* Slides */}
+      {/* Background slide with crossfade + ken-burns */}
       <AnimatePresence mode="sync">
         <motion.div
-          key={index}
+          key={slide.id + "-" + index}
           initial={{ opacity: 0, scale: 1.06 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1 }}
@@ -139,8 +87,8 @@ export default function HeroSlideshow() {
           className="absolute inset-0"
         >
           <img
-            src={slide.src}
-            alt={slide.caption}
+            src={resolveImage(slide.image_url)}
+            alt={slide.caption ?? slide.title ?? "Netlink slide"}
             className="w-full h-full object-cover animate-ken-burns"
             loading={index === 0 ? "eager" : "lazy"}
             width={1920}
@@ -150,47 +98,60 @@ export default function HeroSlideshow() {
       </AnimatePresence>
 
       {/* Layered overlays for legibility */}
-      <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/95 via-navy-dark/70 to-navy-dark/30" />
-      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-transparent to-navy-dark/40" />
+      <div className="absolute inset-0 bg-gradient-to-b from-navy-dark/80 via-navy-dark/55 to-navy-dark/90" />
       <div className="absolute inset-0 network-pattern opacity-25" />
+      {/* Floating bubbles decorative layer */}
+      <div className="hero-bubbles absolute inset-0 pointer-events-none">
+        <span className="bubble bubble-1" />
+        <span className="bubble bubble-2" />
+        <span className="bubble bubble-3" />
+        <span className="bubble bubble-4" />
+        <span className="bubble bubble-5" />
+        <span className="bubble bubble-6" />
+      </div>
 
-      {/* Content — centered */}
-      <div className="relative container mx-auto px-4 md:px-8 pt-20 z-10 flex justify-center">
+      {/* Content — perfectly centered */}
+      <div className="relative container mx-auto px-4 md:px-8 pt-20 pb-12 z-10 flex justify-center">
         <AnimatePresence mode="wait">
           <motion.div
-            key={`txt-${index}`}
+            key={`txt-${slide.id}-${index}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-3xl text-center mx-auto"
+            className="max-w-4xl text-center mx-auto"
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-brand/40 bg-cyan-brand/10 backdrop-blur-sm text-cyan-brand text-xs font-medium mb-6 tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-brand animate-pulse" />
-              {slide.eyebrow}
+              Netlink General Solutions PLC
             </div>
-            <h1 className="font-heading font-bold text-5xl md:text-7xl leading-[0.95] text-sky-text mb-6 text-balance">
-              {slide.title}
-              <br />
-              <span className="bg-clip-text text-transparent bg-[image:var(--gradient-brand)]">
-                {slide.highlight}
-              </span>
-            </h1>
-            <p className="text-body-text text-lg md:text-xl mb-8 mx-auto max-w-2xl leading-relaxed font-body">
-              {slide.caption}
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center">
+
+            {slide.title && (
+              <h1 className="font-heading font-bold text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6 text-balance">
+                <span className="bg-clip-text text-transparent bg-[image:var(--gradient-brand)]">
+                  {slide.title}
+                </span>
+              </h1>
+            )}
+
+            {slide.caption && (
+              <p className="text-body-text text-base md:text-xl mb-8 mx-auto max-w-3xl leading-relaxed font-body">
+                {slide.caption}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-3 md:gap-4 justify-center">
               <Link
-                to="/contact"
+                to={(slide.cta_link as any) || "/contact"}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-heading font-semibold text-white shadow-glow transition-all hover:scale-[1.02] bg-[image:var(--gradient-brand)] hover:brightness-110"
               >
-                Request a Demo <ArrowRight className="w-4 h-4" />
+                {slide.cta_label || "Request a Demo"} <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/services"
                 className="inline-flex items-center gap-2 px-6 py-3 border border-sky-text/30 text-sky-text font-heading font-semibold rounded-lg hover:bg-sky-text/10 hover:border-cyan-brand transition-colors"
               >
-                Explore Solutions
+                Explore Services
               </Link>
               <a
                 href="tel:+251910340909"
@@ -199,43 +160,24 @@ export default function HeroSlideshow() {
                 <Phone className="w-4 h-4" /> Get a Quote
               </a>
             </div>
+
+            {/* Discrete progress dots — no counter, no arrows */}
+            {slides.length > 1 && (
+              <div className="flex gap-2 justify-center mt-10">
+                {slides.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setIndex(i)}
+                    aria-label={`Go to slide ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all duration-500 ${
+                      i === index ? "w-10 bg-emerald-brand" : "w-1.5 bg-sky-text/30 hover:bg-sky-text/60"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
-      </div>
-
-      {/* Controls */}
-      <button
-        onClick={() => go(-1)}
-        aria-label="Previous slide"
-        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 items-center justify-center rounded-full bg-navy/40 backdrop-blur-md border border-sky-text/20 text-sky-text hover:bg-cyan-brand/30 hover:border-cyan-brand transition-all z-20"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      <button
-        onClick={() => go(1)}
-        aria-label="Next slide"
-        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 items-center justify-center rounded-full bg-navy/40 backdrop-blur-md border border-sky-text/20 text-sky-text hover:bg-cyan-brand/30 hover:border-cyan-brand transition-all z-20"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-
-      {/* Dots + progress */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-20">
-        <div className="flex gap-2">
-          {SLIDES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                i === index ? "w-8 bg-emerald-brand" : "w-1.5 bg-sky-text/40 hover:bg-sky-text/70"
-              }`}
-            />
-          ))}
-        </div>
-        <span className="text-sky-text/50 text-[10px] tracking-widest font-medium">
-          {String(index + 1).padStart(2, "0")} / {String(SLIDES.length).padStart(2, "0")}
-        </span>
       </div>
     </section>
   );

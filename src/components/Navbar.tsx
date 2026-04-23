@@ -29,47 +29,45 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-navy-dark/95 backdrop-blur-md shadow-lg border-b border-cyan-brand/20"
-          : "bg-navy-dark/80 backdrop-blur-sm border-b border-cyan-brand/10"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-navy-dark/95 backdrop-blur-md border-b ${
+        scrolled ? "shadow-lg border-cyan-brand/25" : "border-cyan-brand/10"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between h-16 px-4 md:px-8">
-        {/* Logo + brand wordmark */}
+      <div className="container mx-auto flex items-center justify-between h-16 md:h-18 px-4 md:px-8">
+        {/* Brand */}
         <Link to="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-[image:var(--gradient-brand)] flex items-center justify-center shadow-glow group-hover:animate-pulse-glow transition-all">
+          <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-[image:var(--gradient-brand)] flex items-center justify-center shadow-glow group-hover:animate-pulse-glow transition-all">
             <Network className="w-5 h-5 text-white" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-heading font-bold text-base md:text-lg tracking-[0.18em] bg-clip-text text-transparent bg-[image:var(--gradient-brand)]">
+            <span className="font-heading font-bold text-base md:text-lg tracking-[0.16em] bg-clip-text text-transparent bg-[image:var(--gradient-brand)] whitespace-nowrap">
               NETLINK
             </span>
-            <span className="text-[9px] md:text-[10px] text-sky-text/80 tracking-[0.28em] font-medium mt-0.5">
+            <span className="text-[9px] md:text-[10px] text-sky-text/85 tracking-[0.24em] font-semibold mt-0.5 whitespace-nowrap">
               GENERAL SOLUTIONS
             </span>
           </div>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        {/* Desktop Nav — evenly spaced, consistent gradient underline */}
+        <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1">
           {navLinks.map((link) => {
             const active = location.pathname === link.path;
             return (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`relative px-3 py-2 text-sm font-medium font-heading tracking-wide rounded-md transition-colors ${
+                className={`relative px-3 xl:px-4 py-2 text-sm font-semibold font-heading tracking-wide rounded-md transition-colors ${
                   active
                     ? "text-emerald-brand"
-                    : "text-sky-text/85 hover:text-cyan-brand"
+                    : "text-sky-text/90 hover:text-cyan-brand"
                 }`}
               >
                 {link.label}
                 {active && (
                   <motion.span
                     layoutId="nav-underline"
-                    className="absolute left-2 right-2 -bottom-0.5 h-0.5 rounded-full bg-[image:var(--gradient-brand)]"
+                    className="absolute left-3 right-3 -bottom-0.5 h-[2px] rounded-full bg-[image:var(--gradient-brand)]"
                   />
                 )}
               </Link>
@@ -77,7 +75,7 @@ export default function Navbar() {
           })}
           <Link
             to="/contact"
-            className="ml-3 px-4 py-2 bg-[image:var(--gradient-brand)] text-white text-sm font-heading font-semibold rounded-md hover:brightness-110 transition-all shadow-glow"
+            className="ml-3 px-5 py-2 bg-[image:var(--gradient-brand)] text-white text-sm font-heading font-semibold rounded-md hover:brightness-110 hover:scale-[1.02] transition-all shadow-glow"
           >
             Get Started
           </Link>
@@ -93,32 +91,38 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu — same gradient underline language */}
       <AnimatePresence>
         {open && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-navy-dark/98 backdrop-blur-md border-t border-cyan-brand/20"
+            className="lg:hidden bg-navy-dark/98 backdrop-blur-md border-t border-cyan-brand/20 overflow-hidden"
           >
             <nav className="container mx-auto py-4 px-4 flex flex-col gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-4 py-3 text-sm font-heading font-medium tracking-wide rounded-md transition-colors ${
-                    location.pathname === link.path
-                      ? "text-emerald-brand bg-emerald-brand/10"
-                      : "text-sky-text/85 hover:text-cyan-brand hover:bg-cyan-brand/5"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const active = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`relative px-4 py-3 text-sm font-heading font-semibold tracking-wide rounded-md transition-colors ${
+                      active
+                        ? "text-emerald-brand bg-emerald-brand/10"
+                        : "text-sky-text/90 hover:text-cyan-brand hover:bg-cyan-brand/5"
+                    }`}
+                  >
+                    {link.label}
+                    {active && (
+                      <span className="absolute left-4 right-4 bottom-1 h-[2px] rounded-full bg-[image:var(--gradient-brand)]" />
+                    )}
+                  </Link>
+                );
+              })}
               <Link
                 to="/contact"
-                className="mt-2 px-4 py-3 bg-[image:var(--gradient-brand)] text-white text-sm font-heading font-semibold rounded-md text-center shadow-glow"
+                className="mt-3 px-4 py-3 bg-[image:var(--gradient-brand)] text-white text-sm font-heading font-semibold rounded-md text-center shadow-glow"
               >
                 Get Started
               </Link>
