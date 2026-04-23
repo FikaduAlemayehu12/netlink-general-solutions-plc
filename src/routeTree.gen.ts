@@ -23,6 +23,7 @@ import { Route as StaffVacanciesRouteImport } from './routes/staff/vacancies'
 import { Route as StaffTicketsRouteImport } from './routes/staff/tickets'
 import { Route as StaffTeamRouteImport } from './routes/staff/team'
 import { Route as StaffSiteContentRouteImport } from './routes/staff/site-content'
+import { Route as StaffSiteCmsRouteImport } from './routes/staff/site-cms'
 import { Route as StaffSettingsRouteImport } from './routes/staff/settings'
 import { Route as StaffSalaryRouteImport } from './routes/staff/salary'
 import { Route as StaffRecycleBinRouteImport } from './routes/staff/recycle-bin'
@@ -110,6 +111,11 @@ const StaffTeamRoute = StaffTeamRouteImport.update({
 const StaffSiteContentRoute = StaffSiteContentRouteImport.update({
   id: '/staff/site-content',
   path: '/staff/site-content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffSiteCmsRoute = StaffSiteCmsRouteImport.update({
+  id: '/staff/site-cms',
+  path: '/staff/site-cms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StaffSettingsRoute = StaffSettingsRouteImport.update({
@@ -231,6 +237,7 @@ export interface FileRoutesByFullPath {
   '/staff/recycle-bin': typeof StaffRecycleBinRoute
   '/staff/salary': typeof StaffSalaryRoute
   '/staff/settings': typeof StaffSettingsRoute
+  '/staff/site-cms': typeof StaffSiteCmsRoute
   '/staff/site-content': typeof StaffSiteContentRoute
   '/staff/team': typeof StaffTeamRoute
   '/staff/tickets': typeof StaffTicketsRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/staff/recycle-bin': typeof StaffRecycleBinRoute
   '/staff/salary': typeof StaffSalaryRoute
   '/staff/settings': typeof StaffSettingsRoute
+  '/staff/site-cms': typeof StaffSiteCmsRoute
   '/staff/site-content': typeof StaffSiteContentRoute
   '/staff/team': typeof StaffTeamRoute
   '/staff/tickets': typeof StaffTicketsRoute
@@ -300,6 +308,7 @@ export interface FileRoutesById {
   '/staff/recycle-bin': typeof StaffRecycleBinRoute
   '/staff/salary': typeof StaffSalaryRoute
   '/staff/settings': typeof StaffSettingsRoute
+  '/staff/site-cms': typeof StaffSiteCmsRoute
   '/staff/site-content': typeof StaffSiteContentRoute
   '/staff/team': typeof StaffTeamRoute
   '/staff/tickets': typeof StaffTicketsRoute
@@ -336,6 +345,7 @@ export interface FileRouteTypes {
     | '/staff/recycle-bin'
     | '/staff/salary'
     | '/staff/settings'
+    | '/staff/site-cms'
     | '/staff/site-content'
     | '/staff/team'
     | '/staff/tickets'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/staff/recycle-bin'
     | '/staff/salary'
     | '/staff/settings'
+    | '/staff/site-cms'
     | '/staff/site-content'
     | '/staff/team'
     | '/staff/tickets'
@@ -404,6 +415,7 @@ export interface FileRouteTypes {
     | '/staff/recycle-bin'
     | '/staff/salary'
     | '/staff/settings'
+    | '/staff/site-cms'
     | '/staff/site-content'
     | '/staff/team'
     | '/staff/tickets'
@@ -438,6 +450,7 @@ export interface RootRouteChildren {
   StaffRecycleBinRoute: typeof StaffRecycleBinRoute
   StaffSalaryRoute: typeof StaffSalaryRoute
   StaffSettingsRoute: typeof StaffSettingsRoute
+  StaffSiteCmsRoute: typeof StaffSiteCmsRoute
   StaffSiteContentRoute: typeof StaffSiteContentRoute
   StaffTeamRoute: typeof StaffTeamRoute
   StaffTicketsRoute: typeof StaffTicketsRoute
@@ -543,6 +556,13 @@ declare module '@tanstack/react-router' {
       path: '/staff/site-content'
       fullPath: '/staff/site-content'
       preLoaderRoute: typeof StaffSiteContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff/site-cms': {
+      id: '/staff/site-cms'
+      path: '/staff/site-cms'
+      fullPath: '/staff/site-cms'
+      preLoaderRoute: typeof StaffSiteCmsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/staff/settings': {
@@ -711,6 +731,7 @@ const rootRouteChildren: RootRouteChildren = {
   StaffRecycleBinRoute: StaffRecycleBinRoute,
   StaffSalaryRoute: StaffSalaryRoute,
   StaffSettingsRoute: StaffSettingsRoute,
+  StaffSiteCmsRoute: StaffSiteCmsRoute,
   StaffSiteContentRoute: StaffSiteContentRoute,
   StaffTeamRoute: StaffTeamRoute,
   StaffTicketsRoute: StaffTicketsRoute,

@@ -94,6 +94,12 @@
   0% { transform: scale(1) translate(0, 0); }
   100% { transform: scale(1.12) translate(-2%, -1%); }
 }
+@keyframes bubble-float {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-110vh) translateX(40px) scale(1.3); opacity: 0; }
+}
 
 :root {
   --radius: 0.5rem;
@@ -209,4 +215,40 @@
   .font-body { font-family: var(--font-body); }
   .text-balance { text-wrap: balance; }
   .animate-ken-burns { animation: var(--animate-ken-burns); }
+
+  /* Floating bubble layer for hero */
+  .hero-bubbles { overflow: hidden; }
+  .hero-bubbles .bubble {
+    position: absolute;
+    bottom: -120px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 30% 30%, oklch(0.74 0.14 215 / 0.55), oklch(0.74 0.18 145 / 0.15) 60%, transparent 70%);
+    filter: blur(0.5px);
+    animation: bubble-float linear infinite;
+    will-change: transform, opacity;
+  }
+  .hero-bubbles .bubble-1 { left: 8%;  width: 90px;  height: 90px;  animation-duration: 18s; animation-delay: 0s; }
+  .hero-bubbles .bubble-2 { left: 22%; width: 50px;  height: 50px;  animation-duration: 14s; animation-delay: 3s; }
+  .hero-bubbles .bubble-3 { left: 45%; width: 130px; height: 130px; animation-duration: 22s; animation-delay: 1s; }
+  .hero-bubbles .bubble-4 { left: 65%; width: 70px;  height: 70px;  animation-duration: 16s; animation-delay: 5s; }
+  .hero-bubbles .bubble-5 { left: 80%; width: 110px; height: 110px; animation-duration: 20s; animation-delay: 2s; }
+  .hero-bubbles .bubble-6 { left: 92%; width: 60px;  height: 60px;  animation-duration: 17s; animation-delay: 4s; }
+
+  /* Bubble-hover effect for interactive cards */
+  .bubble-hover { position: relative; overflow: hidden; }
+  .bubble-hover::before {
+    content: "";
+    position: absolute;
+    width: 0; height: 0;
+    border-radius: 9999px;
+    background: radial-gradient(circle, oklch(0.74 0.14 215 / 0.35), transparent 70%);
+    transform: translate(-50%, -50%);
+    top: 50%; left: 50%;
+    transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .bubble-hover:hover::before {
+    width: 320px; height: 320px; opacity: 1;
+  }
 }
